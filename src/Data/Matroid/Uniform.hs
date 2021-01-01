@@ -48,4 +48,5 @@ uniform ::
 uniform n r
   | r < 0 = error "The rank of a matroid must be non-negative."
   | n < 0 = error "The cardinality of a matroid must be non-negative."
+  | n > r = error "The cardinality of a matroid must be at least its rank."
   | otherwise = U (S.fromList [1..n]) r

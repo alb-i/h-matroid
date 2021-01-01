@@ -56,7 +56,7 @@ class Ord a => Matroid m a
     basis :: m a -- ^ the matroid
       -> Set a -- ^ set of matroid elements
       -> Set a
-    basis m = S.foldl' augmentIndep (S.empty :: Set a)
+    basis m = S.foldl' augmentIndep (S.empty :: Set a) -- beware that I have not tested this fold as of now
          where 
              augmentIndep b0 x {- adds x to b0 if b0 + {x} is independent -}
                | indep m b_aug = b_aug
@@ -68,7 +68,7 @@ class Ord a => Matroid m a
     cl :: m a -- ^ the matroid
       -> Set a -- ^ set of matroid elements 
       -> Set a
-    cl m x = S.foldl' augmentDep x $ groundset m
+    cl m x = S.foldl' augmentDep x $ groundset m -- beware that I have not tested this fold as of now
         where 
            rank_x = rk m x
            augmentDep f0 e {- adds e to f0 if the rank of f0+{e} stays the same -}
