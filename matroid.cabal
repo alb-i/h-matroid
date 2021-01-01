@@ -17,6 +17,7 @@ Library
   Exposed-Modules:      Data.Matroid
                       , Data.Matroid.Uniform
   Other-Modules:        Data.Matroid.Internal
+                      , Data.Matroid.Internal.Tests
   Build-Depends:        base >= 4 && < 5
                       , containers >= 0.6
 
