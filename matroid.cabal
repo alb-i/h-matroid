@@ -15,6 +15,7 @@ Library
   HS-Source-Dirs:       src
   GHC-Options:          -Wall
   Exposed-Modules:      Data.Matroid
+                      , Data.Matroid.Uniform
   Other-Modules:        Data.Matroid.Internal
   Build-Depends:        base >= 4 && < 5
                       , containers >= 0.6
@@ -28,7 +29,8 @@ Test-Suite spec
   Main-Is:              Spec.hs
   Build-Depends:        base
                       , hspec
-                      , container
+                      , containers
+                      , QuickCheck
 
 Source-Repository head
   Type:                 git

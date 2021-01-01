@@ -1,3 +1,5 @@
+{-# LANGUAGE MultiParamTypeClasses #-}
+
 {-|
 Module      : Data.Matroid
 Description : 
@@ -15,7 +17,7 @@ they usually stay under the radar.
 
 -}
 module Data.Matroid where
-
+  
 import Data.Matroid.Internal
 
 import Data.Set (Set)
@@ -27,46 +29,50 @@ import qualified Data.Set as S
     
     The type parameter @a@ is the type of the elements of the matroid,
     it is most commonly used in a @Set a@ type.
+    
+    In this typeclass, we assume that every set of matroid elements
+    passed to any of the routines is actually a subset of (groundset m).
+    Behaviour for other sets shall be considered undefined.
      
 -}
-class Ord a => Matroid a
+class Ord a => Matroid m a 
     where
     -- | The ground set of the matroid, its elements are usually called edges. This set is finite.
-    groundset :: Set a
+    groundset :: m a -> Set a
     
     -- | returns the rank of the set
-    rk ::
-         Set a -- ^ set of matroid elements
+    rk :: m a -- ^ the matroid 
+      -> Set a -- ^ set of matroid elements
       -> Int
-    rk = length . basis
+    rk m = length . basis m
     
     -- | tests whether a given set is independent
-    indep :: 
-         Set a -- ^ set of matroid elements
+    indep :: m a -- ^ the matroid 
+      -> Set a -- ^ set of matroid elements
       -> Bool
-    indep x = rk x == length x -- a set is independent iff its rank equals its cardinality
+    indep m x = rk m x == length x -- a set is independent iff its rank equals its cardinality
     
     -- | obtains an independent subset with maximal cardinality
-    basis :: 
-         Set a -- ^ set of matroid elements
+    basis :: m a -- ^ the matroid
+      -> Set a -- ^ set of matroid elements
       -> Set a
-    basis = S.foldl' augmentIndep (S.empty :: Set a)
+    basis m = S.foldl' augmentIndep (S.empty :: Set a)
          where 
              augmentIndep b0 x {- adds x to b0 if b0 + {x} is independent -}
-               | indep b_aug = b_aug
+               | indep m b_aug = b_aug
                | otherwise = b0
                where 
                    b_aug = S.insert x b0
                    
     -- | computes the closure of a given set
-    cl :: 
-      Set a -- ^ set of matroid elements 
+    cl :: m a -- ^ the matroid
+      -> Set a -- ^ set of matroid elements 
       -> Set a
-    cl x = S.foldl' augmentDep x groundset
+    cl m x = S.foldl' augmentDep x $ groundset m
         where 
-           rank_x = rk x
+           rank_x = rk m x
            augmentDep f0 e {- adds e to f0 if the rank of f0+{e} stays the same -}
-             | rk f_aug == rank_x = f_aug
+             | rk m f_aug == rank_x = f_aug
              | otherwise = f0
              where 
                f_aug = S.insert e f0
