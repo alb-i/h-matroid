@@ -20,7 +20,7 @@ import Data.Set (Set)
 import qualified Data.Set as S
 
 -- | Tests whether a given integer valued set function is indeed monotone increasing in at most unit steps
-is_monotone_unit_increasing :: Ord a =>       (Set a -> Int) {- ^ the rank function (or similar) -} 
+is_monotone_unit_increasing :: Ord a => (Set a -> Int) {- ^ the rank function (or similar) -} 
                                       -> [a] {- ^ sequence to check monotonicity with -} 
                                       -> Bool
 is_monotone_unit_increasing rk e = result
