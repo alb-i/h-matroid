@@ -27,6 +27,7 @@ This is a todo list of things that could be tested:
   -  cl(X) \subseteq E
   -  cl(cl(X)) == cl(X) (idempotence)
   -  e \in E\X, y\in cl(X+{e})\cl(X) => e \in cl(X+{y})
+  -  rk(X) == rk(cl(X)) and cl(X) is maximal with this property
 
 -}
 
@@ -100,10 +101,11 @@ matroid_suite g = do
   rk_properties_suite g
   indep_properties_suite g
     
+-- | the main routine
 main :: IO ()
 main = hspec spec
 
-
+-- | all the tests
 spec :: Spec
 spec = do
     describe "Data.Matroid.Uniform.uniform" $ matroid_suite gen_uniform_matroids
