@@ -18,9 +18,6 @@ import qualified Data.Set as S
 This is a todo list of things that could be tested:
 
   
-  -  indep X  &&  Y\subseteq X => indep Y (hereditary)
-  -  indep \emptyset
-  -  indep X && indep Y && |Y| > |X| => exists y\in Y: indep X+{y} (exchange property)
 
   -  basis X \subseteq X
   -  indep (basis X)
@@ -42,18 +39,14 @@ gen_uniform_matroids = do r <- (arbitrary :: Gen Int) `suchThat` (>= 0) `suchTha
                         
   
                           
-{- | test suite for rank axioms
- 
- The following properties are verified:
+{- | test suite for rank axioms 
 
+ The following properties are verified:
   -  rk is monotone increasing
   -  rk(X+{x}) <= rk(X) + 1  (unit increasing)
-  
   -  rk(\emptyset) = 0 (important special case)
   -  rk(X) <= |X| (subcardinal)
-
   -  rk(A/\B) + rk(A\/B) <= rk(A) + rk(B) (submodular)
- 
 -}
 rk_properties_suite :: Matroid m a => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
 rk_properties_suite genMatroids = context "rk properties" $ do
@@ -75,24 +68,42 @@ rk_properties_suite genMatroids = context "rk properties" $ do
       let a = S.fromList a0
           b = S.fromList b0
         in return $ (rk m (a `S.union` b)) + (rk m (a `S.intersection` b)) <= (rk m a) + (rk m b)
-  
+
+{- | test suite for indep properties
+
+The following properties are verified:
+  -  indep X  &&  Y\subseteq X => indep Y (hereditary)
+  -  indep \emptyset
+  -  indep X && indep Y && |Y| > |X| => exists y\in Y: indep X+{y} (exchange property)
+
+-}
+indep_properties_suite :: Matroid m a => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
+indep_properties_suite genMatroids = context "indep properties" $ do
+  it "indep is hereditary" $ property $ do
+    m <- genMatroids
+    e <- shuffle $ S.toList $ groundset m
+    return $ is_monotone_decreasing_bool (indep m) e
+  it "indep({}) == True" $ property $ do
+    m <- genMatroids
+    return $ indep m S.empty == True
+  it "indep obeys the exchange property" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    y0 <- sublistOf $ S.toList $ groundset m
+    let x1 = basis m $ S.fromList x0
+        y1 = basis m $ S.fromList y0
+      in return $ has_exchange_property (indep m) x1 y1
+
+-- | all tests that any matroid should/must pass
+matroid_suite :: Matroid m a => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
+matroid_suite g = do
+  rk_properties_suite g
+  indep_properties_suite g
+    
 main :: IO ()
 main = hspec spec
 
 
 spec :: Spec
 spec = do
-    describe "Data.Matroid.Uniform.uniform" $ do
-      rk_properties_suite gen_uniform_matroids
-
-      
-      
-
-{-
-main :: IO ()
-main = hspec spec
-
-spec :: Spec
-spec = describe "Data.Matroid.Uniform.uniform" $ do
-  it "test" $ True `shouldBe` True
-  -}
+    describe "Data.Matroid.Uniform.uniform" $ matroid_suite gen_uniform_matroids
