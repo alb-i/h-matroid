@@ -150,6 +150,50 @@ cl_properties_suite genMatroids = context "cl properties" $ do
         cx = cl m x
       in return $ rk m x == rk m cx
       
+  {- | tests rk,indep,basis,cl for equality against the default implementations wrt. rk,indep,basis
+    
+  rk, indep, and cl should produce the same output when given the same input.
+  
+  basis however is only required to produce a basis of the given subset, and which basis is
+  produced really depends on how the basis is derived. Here, we are ok if b1 and b2 have
+    cl1(b1) == cl1(b2) == cl2(b1) == cl2(b2) [technically, we are overchecking here.]
+  
+   -}
+consistency_suite :: Matroid m a => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
+consistency_suite genMatroids = context "implementation consistency" $ do
+  let via_rk m_ = fromRk (groundset m_) (rk m_)
+      via_indep m_ = fromIndep (groundset m_) (indep m_)
+      via_basis m_ = fromBasisFilter (groundset m_) (basis m_)
+      check_eq via_x fn1 fn2 = -- fn1 and fn2 are the same function but wrt. different types
+       property $ do 
+        m1 <- genMatroids
+        x0 <- sublistOf $ S.toList $ groundset m1
+        let m2 = via_x m1
+            x = S.fromList x0
+          in return $ fn1 m1 x == fn2 m2 x
+      check_basis via_x =
+       property $ do
+        m1 <- genMatroids
+        x0 <- sublistOf $ S.toList $ groundset m1
+        let m2 = via_x m1
+            x = S.fromList x0
+            b1 = basis m1 x
+            b2 = basis m2 x
+            c1b1 = cl m1 b1
+            c1b2 = cl m1 b2
+            c2b1 = cl m2 b1
+            c2b2 = cl m2 b2
+          in return $ (c1b1 == c1b2) && (c1b1 == c2b1) && (c1b1 == c2b2)
+    in do
+      it "indep wrt. rk matroid" $  check_eq via_rk indep indep
+      it "cl wrt. rk matroid" $  check_eq via_rk cl cl
+      it "basis wrt. rk matroid" $  check_basis via_rk
+      it "rk wrt. indep matroid" $  check_eq via_indep rk rk
+      it "cl wrt. indep matroid" $  check_eq via_indep cl cl
+      it "basis wrt. indep matroid" $  check_basis via_indep
+      it "indep wrt. basis matroid" $  check_eq via_basis indep indep
+      it "rk wrt. basis matroid" $  check_eq via_basis rk rk
+      it "cl wrt. basis matroid" $  check_eq via_basis cl cl
       
 -- | all tests that any matroid should/must pass
 matroid_suite :: Matroid m a => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
@@ -158,7 +202,8 @@ matroid_suite g = do
   indep_properties_suite g
   basis_properties_suite g
   cl_properties_suite g
-  {- test rk,indep,basis,cl for equality against the default implementations wrt. rk,indep,basis -}
+  consistency_suite g
+  
 
   
 -- | the main routine
