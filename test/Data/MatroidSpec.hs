@@ -18,6 +18,11 @@ gen_uniform_matroids = do r <- (arbitrary :: Gen Int) `suchThat` (>= 0) `suchTha
                           n <- (arbitrary :: Gen Int) `suchThat` (>= r) `suchThat` (<= 100)
                           return $ uniform n r
                           
+-- | a generator for free matroids of a reasonable size
+gen_free_matroids :: Gen (FreeMatroid Int)
+gen_free_matroids = do n <- (arbitrary :: Gen Int) `suchThat` (<= 30)
+                       return $ freeOn $ S.fromList [1..n]
+                          
 {- | test suite for rank axioms 
 
  The following properties are verified:
@@ -214,3 +219,4 @@ main = hspec spec
 spec :: Spec
 spec = do
     describe "Data.Matroid.Uniform.uniform" $ matroid_suite gen_uniform_matroids
+    describe "Data.Matroid.Uniform.freeOn" $ matroid_suite gen_free_matroids
