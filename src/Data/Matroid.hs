@@ -78,3 +78,7 @@ class Ord a => Matroid m a
                f_aug = S.insert e f0
       
     {-# MINIMAL groundset, (rk | indep | basis) #-}
+    
+-- | matroid constructor given groundset and rank function
+fromRk :: Matroid m a => (Set a) {- ^ ground set -} -> (Set a -> Int) {- ^ rank function -} -> (m a)
+fromRk = Data.Matroid.Internal.fromRk

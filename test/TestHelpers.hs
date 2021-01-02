@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 
 {-|
-Module      : Data.Matroid.Internal.Tests
+Module      : TestHelpers
 Description : 
 Copyright   : (c) Immanuel Albrecht, 2020-202x
 License     : BSD-3
@@ -13,7 +13,7 @@ This module provides internal helpers for the matroid package tests.
 
 -}
 
-module Data.Matroid.Internal.Tests where
+module TestHelpers where
     
 import Data.List (foldl')
 import Data.Set (Set)
@@ -58,3 +58,15 @@ has_exchange_property indep x y
             | indep $ x_ `S.union` S.singleton x0 = True -- we found a candidate from Y\X that can be used to augment X
             | otherwise                            = check x_ xs -- try the other candidates
           check _ _ = False -- no candidates left, property is not satisfied
+          
+-- | Tests whether a given set valued set function is isotone in the set lattice
+is_isotone_set_map :: Ord a => (Set a -> Set a) {- ^ the cl function (or similar) -}
+                                    -> [a] {- ^ sequence to check monotonicity with -}
+                                    -> Bool
+is_isotone_set_map cl e = result
+   where (_,result,_) = foldl' checkStep (S.empty :: Set a, True, S.empty :: Set a) e
+         checkStep (x0,False,c0)   _ = (x0,False,c0) -- propagate error
+         checkStep (x0, True,c0)   x = let x1 = S.insert x x0
+                                           c1 = cl x1
+                                           isSuperset = c0 `S.isSubsetOf` c1
+                                        in (x1,isSuperset,c1)

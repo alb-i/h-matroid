@@ -15,7 +15,8 @@ This module provides implementations of uniform matroids.
 
 module Data.Matroid.Uniform
     (
-       UniformMatroid ( U )
+      UniformMatroid
+     , uniformOn
      , uniform
     ) where
 
@@ -33,11 +34,11 @@ data UniformMatroid a = U -- ^ uniform matroid constructor
                     
 instance Ord a => Matroid UniformMatroid a where
     groundset (U e _) = e
-    rk (U _ r) x = min (max 0 r) $ length x -- we enforce the rank to be at least 0
-    indep (U _ r) x = length x <= (max 0 r) -- we enforce the rank to be at least 0
-    basis (U _ r) = S.take (max 0 r) -- we enforce the rank to be at least 0
+    rk (U _ r) x = min r $ length x 
+    indep (U _ r) x = length x <= r 
+    basis (U _ r) = S.take r 
     cl (U e r) x
-      | length x < (max 0 r) = x -- we enforce the rank to be at least 0
+      | length x < r = x 
       | otherwise = e
 
 -- | returns a uniform matroid on the intergers from 1..n of rank r
@@ -46,7 +47,16 @@ uniform ::
  -> Int -- ^ rank of the uniform matroid (r)
  -> UniformMatroid Int
 uniform n r
-  | r < 0 = error "The rank of a matroid must be non-negative."
   | n < 0 = error "The cardinality of a matroid must be non-negative."
-  | n < r = error "The cardinality of a matroid must be at least its rank."
-  | otherwise = U (S.fromList [1..n]) r
+  | otherwise = uniformOn (S.fromList [1..n]) r
+
+-- | returns a uniform matroid on a given ground set of rank r
+uniformOn :: Ord a => 
+ Set a -- ^ ground set of the uniform matroid
+ -> Int -- ^ rank of the uniform matroid (r)
+ -> UniformMatroid a
+uniformOn e r
+  | r < 0 = error "The rank of a matroid must be non-negative."
+  | n < r = error "The cardinality of the groundset of the matroid must be at least its rank."
+  | otherwise = U e r
+  where n = length e

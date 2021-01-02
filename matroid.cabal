@@ -17,22 +17,22 @@ Library
   Exposed-Modules:      Data.Matroid
                       , Data.Matroid.Uniform
   Other-Modules:        Data.Matroid.Internal
-                      , Data.Matroid.Internal.Tests
   Build-Depends:        base >= 4 && < 5
                       , containers >= 0.6
 
 Test-Suite spec
   Type:                 exitcode-stdio-1.0
   Default-Language:     Haskell2010
-  Hs-Source-Dirs:       src
-                      , test
+  Hs-Source-Dirs:       test
   Ghc-Options:          -Wall
   Main-Is:              Spec.hs
   Build-Depends:        base
                       , hspec
                       , containers
                       , QuickCheck
+                      , matroid
 
 Source-Repository head
   Type:                 git
---  Location:             
+  Location:             
+    git: https://github.com/alb-i/h-matroid/

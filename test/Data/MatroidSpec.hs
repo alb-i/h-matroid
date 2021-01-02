@@ -7,38 +7,16 @@ import Test.QuickCheck
 
 import Data.Matroid
 import Data.Matroid.Uniform
-import Data.Matroid.Internal.Tests
+import TestHelpers
 
 import Data.Set (Set)
 import qualified Data.Set as S
-
-
-{-
-
-This is a todo list of things that could be tested:
-
-  
-
-  -  basis X \subseteq X
-  -  indep (basis X)
-  -  y in X\(basis X) => not indep (basis X)+{y}
-  
-  -  cl is monotone
-  -  cl(X) \subseteq E
-  -  cl(cl(X)) == cl(X) (idempotence)
-  -  e \in E\X, y\in cl(X+{e})\cl(X) => e \in cl(X+{y})
-  -  rk(X) == rk(cl(X)) and cl(X) is maximal with this property
-
--}
-
 
 -- | a generator for uniform matroids of a reasonable size
 gen_uniform_matroids :: Gen (UniformMatroid Int)
 gen_uniform_matroids = do r <- (arbitrary :: Gen Int) `suchThat` (>= 0) `suchThat` (<= 25) 
                           n <- (arbitrary :: Gen Int) `suchThat` (>= r) `suchThat` (<= 100)
                           return $ uniform n r
-                        
-  
                           
 {- | test suite for rank axioms 
 
@@ -94,13 +72,95 @@ indep_properties_suite genMatroids = context "indep properties" $ do
     let x1 = basis m $ S.fromList x0
         y1 = basis m $ S.fromList y0
       in return $ has_exchange_property (indep m) x1 y1
+      
+{- | test suite for basis properties
 
+The following properties are verified:
+  -  basis X \subseteq X
+  -  indep (basis X)
+  -  y in X\(basis X) => not indep (basis X)+{y}
+
+-}
+basis_properties_suite :: Matroid m a => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
+basis_properties_suite genMatroids = context "basis properties" $ do
+  it "basis(X) is a subset of X" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    let x = S.fromList x0
+        b = basis m x
+      in return $ b `S.isSubsetOf` x
+  it "basis(X) is independent" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    let x = S.fromList x0
+        b = basis m x
+      in return $ indep m b
+  it "basis(X) is maximally independent" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    let x = S.fromList x0
+        b = basis m x
+        result
+          | indep m x = b == x
+          | otherwise = all augNotIndep $ S.difference x b
+        augNotIndep y = (==) False $ indep m $ S.insert y x
+      in return $ result
+{- | test suite for closure operator properties 
+
+The following properties are verified:
+  -  cl is monotone
+  -  cl(X) \subseteq E
+  -  cl(cl(X)) == cl(X) (idempotence)
+  -  e \in E\X, y\in cl(X+{e})\cl(X) => e \in cl(X+{y})
+  -  rk(X) == rk(cl(X)) and cl(X) is maximal with this property
+
+-}
+cl_properties_suite :: Matroid m a => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
+cl_properties_suite genMatroids = context "cl properties" $ do
+  it "cl is extensive" $ property $ do
+    m <- genMatroids
+    e <- shuffle $ S.toList $ groundset m
+    return $ is_isotone_set_map (cl m) e
+  it "cl(E) == E" $ property $ do
+    m <- genMatroids
+    return $ cl m (groundset m) == groundset m
+  it "cl is idempotent" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    let x = S.fromList x0
+        c = cl m x
+        cc = cl m c
+     in return $ c == cc
+  it "cl satisfies the exchange property" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    let x = S.fromList x0 
+        cx = cl m x -- cl(X)
+        es = (groundset m) `S.difference` x -- E\X
+        cxy y = cl m $ S.insert y x -- cl(X+{y})
+        result = all testAllExchanges es  -- binds e\in E\X
+        testAllExchanges e_ = all (testExchange e_) -- binds y
+           $ (cl m $ S.insert e_ x) `S.difference` cx -- cl(X+{e})\cl(X)
+        testExchange e__ y_ = e__ `elem` cxy y_ -- e \in cl(X+{y})
+        in return $ result
+  it "rk(cl(X)) == rk(X)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    let x = S.fromList x0 
+        cx = cl m x
+      in return $ rk m x == rk m cx
+      
+      
 -- | all tests that any matroid should/must pass
 matroid_suite :: Matroid m a => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
 matroid_suite g = do
   rk_properties_suite g
   indep_properties_suite g
-    
+  basis_properties_suite g
+  cl_properties_suite g
+  {- test rk,indep,basis,cl for equality against the default implementations wrt. rk,indep,basis -}
+
+  
 -- | the main routine
 main :: IO ()
 main = hspec spec
