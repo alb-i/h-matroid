@@ -16,7 +16,9 @@ Library
   GHC-Options:          -Wall
   Exposed-Modules:      Data.Matroid
                       , Data.Matroid.Uniform
-  Other-Modules:        Data.Matroid.Internal
+                      , Data.Matroid.Typeclass
+                      , Data.Matroid.Internal
+  -- Other-Modules:        Data.Matroid.Internal
   Build-Depends:        base >= 4 && < 5
                       , containers >= 0.6
 

@@ -23,7 +23,7 @@ module Data.Matroid.Uniform
 import Data.Set (Set)
 import qualified Data.Set as S
 
-import Data.Matroid
+import Data.Matroid.Typeclass
 import Data.Matroid.Internal
 
 -- | data type representing a uniform matroid over a given ground set
