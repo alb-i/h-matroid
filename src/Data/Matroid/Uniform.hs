@@ -18,6 +18,8 @@ module Data.Matroid.Uniform
       UniformMatroid
      , uniformOn
      , uniform
+     , FreeMatroid
+     , freeOn
     ) where
 
 import Data.Set (Set)
@@ -60,3 +62,20 @@ uniformOn e r
   | n < r = error "The cardinality of the groundset of the matroid must be at least its rank."
   | otherwise = U e r
   where n = length e
+
+-- | data type that represents a free matroid over a given set (free matroids are of course uniform)
+data FreeMatroid a = Free (Set a) -- ^ ground set
+                   deriving (Eq, Ord, Show)
+                   
+instance Ord a => Matroid FreeMatroid a where
+  groundset (Free e) = e
+  rk _ = length
+  indep _ _ = True
+  basis _ = id
+  cl _ = id
+  
+-- | returns a free matroid on a given ground set (where every subset of the groundset is independent)
+freeOn :: Ord a => 
+ Set a -- ^ ground set of the free matroid
+ -> FreeMatroid a
+freeOn = Free
