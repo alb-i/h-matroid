@@ -4,8 +4,8 @@ Author:                 Immanuel Albrecht <mail@immanuel-albrecht.de>
 Maintainer:             Immanuel Albrecht <mail@immanuel-albrecht.de>
 License:                BSD3
 License-File:           LICENSE
--- Synopsis:               
--- Description:            
+Synopsis:               matroid (combinatorial pre-geometries) library
+Description:            This library provides typeclasses, instances, and algorithms for working with matroids.
 Cabal-Version:          >= 1.10
 Build-Type:             Simple
 Extra-Source-Files:     README.md, ChangeLog.md
@@ -18,7 +18,7 @@ Library
                       , Data.Matroid.Uniform
                       , Data.Matroid.Typeclass
                       , Data.Matroid.Internal
-  -- Other-Modules:        Data.Matroid.Internal
+                      , Data.Matroid.Graphic
   Build-Depends:        base >= 4 && < 5
                       , containers >= 0.6
 

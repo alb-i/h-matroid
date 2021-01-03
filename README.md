@@ -1,10 +1,17 @@
 # matroid
 
-TODO: Write description here
+This library provides typeclasses and basic functionality that revolves around the combinatorial structures
+known as matroids.
 
 ## Installation
 
-TODO: Write installation instructions here
+```
+stack install matroid
+```
+or
+```
+cabal install matroid
+```
 
 ## Usage
 
@@ -13,9 +20,15 @@ TODO: Write usage instructions here
 ## How to run tests
 
 ```
-cabal configure --enable-tests && cabal build && cabal test
+stack clean && stack build --test --coverage
+```
+
+## Browse the docs
+
+```
+stack haddock --open .
 ```
 
 ## Contributing
 
-TODO: Write contribution instructions here
+Upload your changes and create a pull request on the [github repo](https://github.com/alb-i/h-matroid).

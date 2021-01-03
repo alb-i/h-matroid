@@ -13,7 +13,7 @@ This module provides implementations of graphic matroids.
 
 -}
 
-module Data.Matroid.Graphic 
+module Data.Matroid.Graphic
   ( GraphicMatroid
   , fromGraph
   ) where 
@@ -33,7 +33,11 @@ data GraphicMatroid v a =
 
 instance Ord a => Matroid (GraphicMatroid v) a where
     groundset (MG e _) = e
-       
+    {- | A set of edges of G=(V,E) is independent, if it contains no cycle. 
+      
+    -}
+    indep (MG _ inc) x = undefined
+    
 -- | constructs a GraphicMatroid from a set of (abstract) edges and the incident-vertex map
 fromGraph :: Ord a => Set a -- ^ set of edges of the (multi-)graph
                    -> (a -> Set v) -- ^ map that maps edges to their incident vertex set {u,v}
