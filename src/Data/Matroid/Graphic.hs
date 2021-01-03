@@ -25,7 +25,6 @@ import Data.Map (Map)
 import qualified Data.Map as M
 
 import Data.Matroid.Typeclass
-import Data.Matroid.Internal
 
 -- | data type representing the cycle matroid (aka. polygon matroid) of a (multi-)graph
 data GraphicMatroid v a = 
@@ -45,7 +44,13 @@ data Forrest v a = F Int {- ^ fresh component id counter -}
 emptyForrest :: Forrest v a
 emptyForrest = F 1 M.empty M.empty
 
--- | either (Right) adds an edge to the forrest or (Left) returns the component with a cycle (including e)
+{- | Takes a forrest and tries to add another edge to it.
+
+ If possible (Right), then it returns the forrest with the edge added 
+ otherwise (Left) returns the component with a cycle after adding e.
+ Please note that for a result Left x, the set x contains a cycle, but it
+ is not necessarily a cycle itself. (It's a cycle with trees on it)
+-}
 insertEdgeOrGetCycleComponent :: (Ord v, Ord a) => 
                         Forrest v a {- ^ forrest to insert into / find the cycle -} 
                      -> a {- ^ name of the edge -}
@@ -68,15 +73,16 @@ insertEdgeOrGetCycleComponent (F n c t) e (u,v) -- e is a non-loop edge
                                 Just vid = vc
                                 Just ut = M.lookup uid t
                                 Just vt = M.lookup vid t
-                                prj vid = uid -- map the component id of v to u
-                                prj xid = xid
+                                prj xid 
+                                    | xid == vid = uid -- map the component id of v to u
+                                    | otherwise = xid
                                 c1 = M.map prj c 
                                 uvt = S.insert e $ ut `S.union` vt
                                 t1 = M.insert uid uvt $ M.delete vid t
                              in Right $ F n c1 t1
             -- at this point, either vdef or udef is True, the other is False
            | vdef = insertEdgeOrGetCycleComponent (F n c t) e (v,u) -- bounce to next case
-           | udef =  -- e connects the component of u with the new vertex v
+           | otherwise =  -- e connects the component of u with the new vertex v
                     let Just uid = uc
                         Just ut = M.lookup uid t
                         c1 = M.insert v uid c
@@ -96,7 +102,15 @@ instance (Ord a, Ord v) => Matroid (GraphicMatroid v) a where
                step (False, f) _ = (False, f) -- propagate failure
                step (True, f)  e = maybeContinue f $ insertEdgeOrGetCycleComponent f e $ inc e
                maybeContinue f (Left _) = (False, f) -- edge e closes a cycle
-               maybeContinue _ (Right f) = (True, f) -- edge e added tothe forrest f
+               maybeContinue _ (Right f) = (True, f) -- edge e added to the forrest f
+    -- | determine a spanning forrest of the vertices incident with the edges x
+    basis (MG _ inc) x = M.foldl' S.union S.empty component_map
+         where F _ _ component_map = S.foldl' step emptyForrest x 
+               step f e = doContinue f $ insertEdgeOrGetCycleComponent f e $ inc e
+               doContinue f (Left _) = f -- edge e closes a cycle, continue with previous forrest
+               doContinue _ (Right f) = f -- edge e added to the forrest f
+    -- | there is really no better way to determine the rank of a set
+    rk m = length . basis m
     
 -- | constructs a GraphicMatroid from a set of (abstract) edges and the incident-vertex map
 fromGraph :: Ord a => Set a -- ^ set of edges of the (multi-)graph

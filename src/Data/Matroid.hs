@@ -19,18 +19,12 @@ they usually stay under the radar.
 module Data.Matroid
   (
     module Data.Matroid.Typeclass
-  , Matroid
   , module Data.Matroid.Uniform
-  , uniformOn
-  , uniform
   , fromRk
   , fromIndep
   , fromBasisFilter
   ) where
   
-import Data.Set (Set)
-import qualified Data.Set as S
-
 import Data.Matroid.Typeclass
 import Data.Matroid.Internal 
 import Data.Matroid.Uniform
