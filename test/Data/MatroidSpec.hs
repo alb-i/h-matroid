@@ -7,7 +7,9 @@ import Test.QuickCheck
 
 import Data.Matroid
 import Data.Matroid.Uniform
+import Data.Matroid.Internal (RkMatroid, BasisFilterMatroid, IndepMatroid)
 import TestHelpers
+import Control.Exception (evaluate)
 
 import Data.Set (Set)
 import qualified Data.Set as S
@@ -22,7 +24,24 @@ gen_uniform_matroids = do r <- (arbitrary :: Gen Int) `suchThat` (>= 0) `suchTha
 gen_free_matroids :: Gen (FreeMatroid Int)
 gen_free_matroids = do n <- (arbitrary :: Gen Int) `suchThat` (<= 30)
                        return $ freeOn $ S.fromList [1..n]
-                          
+                       
+-- | a generator for consintency matroid type based on another generator
+gen_via_rank :: Matroid m a => Gen (m a) -> Gen (RkMatroid a)
+gen_via_rank g = do
+                    m_ <- g
+                    return $ fromRk (groundset m_) (rk m_)
+-- | a generator for consintency matroid type based on another generator
+gen_via_indep :: Matroid m a => Gen (m a) -> Gen (IndepMatroid a)
+gen_via_indep g = do
+                    m_ <- g
+                    return $ fromIndep (groundset m_) (indep m_)
+-- | a generator for consintency matroid type based on another generator
+gen_via_basis :: Matroid m a => Gen (m a) -> Gen (BasisFilterMatroid a)
+gen_via_basis g = do
+                    m_ <- g
+                    return $ fromBasisFilter (groundset m_) (basis m_)
+
+                    
 {- | test suite for rank axioms 
 
  The following properties are verified:
@@ -199,17 +218,45 @@ consistency_suite genMatroids = context "implementation consistency" $ do
       it "indep wrt. basis matroid" $  check_eq via_basis indep indep
       it "rk wrt. basis matroid" $  check_eq via_basis rk rk
       it "cl wrt. basis matroid" $  check_eq via_basis cl cl
+
+-- | tests whether show returns a non-empty string
+test_show_nonempty :: Show a => Gen a -> SpecWith ()
+test_show_nonempty g = 
+  it "show is implemented and non-empty" $ property $ do 
+    x <- g
+    return $ 0 /= (length $ show x)
+
+-- | tests for sanity of == and <
+test_eq_ord :: (Eq a, Ord a) => Gen a -> SpecWith ()
+test_eq_ord g = do
+    it "== is implemented" $ property $ do 
+      x <- g
+      y <- g
+      
+      return $ x == y `seq` x == x
+    it "compare is implemented" $ property $ do 
+        x <- g
+        y <- g
+        let cmp = compare x y
+            result
+               | cmp == EQ = x == y
+               | otherwise = x /= y
+         in return $ result
       
 -- | all tests that any matroid should/must pass
-matroid_suite :: Matroid m a => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
+matroid_suite :: (Matroid m a, Show (m a)) => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
 matroid_suite g = do
+  test_show_nonempty g
   rk_properties_suite g
   indep_properties_suite g
   basis_properties_suite g
   cl_properties_suite g
   consistency_suite g
-  
 
+-- | matroid + Eq/Ord sanity tests
+matroid_suite_eq_ord g = do
+  matroid_suite g
+  test_eq_ord g
   
 -- | the main routine
 main :: IO ()
@@ -218,5 +265,14 @@ main = hspec spec
 -- | all the tests
 spec :: Spec
 spec = do
-    describe "Data.Matroid.Uniform.uniform" $ matroid_suite gen_uniform_matroids
-    describe "Data.Matroid.Uniform.freeOn" $ matroid_suite gen_free_matroids
+    describe "Data.Matroid.Uniform.uniform" $ do
+        matroid_suite_eq_ord gen_uniform_matroids
+        it "wrong arguments should produce errors" $ do
+            evaluate (uniform (-1) 0) `shouldThrow` anyErrorCall
+            evaluate (uniform 0 (-1)) `shouldThrow` anyErrorCall
+            evaluate (uniform 0 1) `shouldThrow` anyErrorCall
+          
+    describe "Data.Matroid.Uniform.freeOn" $ matroid_suite_eq_ord gen_free_matroids
+    describe "Data.Matroid.fromRk" $ matroid_suite $ gen_via_rank gen_uniform_matroids
+    describe "Data.Matroid.fromIndep" $ matroid_suite $ gen_via_indep gen_uniform_matroids
+    describe "Data.Matroid.fromBasisFilter" $ matroid_suite $ gen_via_basis gen_uniform_matroids

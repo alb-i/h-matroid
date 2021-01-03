@@ -22,7 +22,8 @@ open door policy for code.
 -}
 module Data.Matroid.Internal
     (
-        fromRk, fromIndep, fromBasisFilter
+        fromRk, fromIndep, fromBasisFilter,
+        RkMatroid, IndepMatroid, BasisFilterMatroid
     ) where
 
 import Data.Matroid.Typeclass 
@@ -33,6 +34,7 @@ import qualified Data.Set as S
 data RkMatroid a = RkM -- ^ matroid from rank function constructor
                    (Set a) -- ^ ground set of the matroid
                    (Set a -> Int) -- ^ rank function
+            
                    
 instance Show a => Show (RkMatroid a) where
     show (RkM g _) = "fromRk (" ++ (show g) ++ ") (rk)"
@@ -50,6 +52,7 @@ fromRk = RkM
 data IndepMatroid a = IndepM -- ^ matroid from independence-test constructor
                    (Set a) -- ^ ground set of the matroid
                    (Set a ->  Bool) -- ^ independence test function
+            
                    
 instance Show a => Show (IndepMatroid a) where
     show (IndepM g _) = "fromIndep (" ++ (show g) ++ ") (indep)"
@@ -64,17 +67,18 @@ fromIndep = IndepM
 
 
 -- | we use this data type to combine a given a basis filter with the default implementations from the Matroid typeclass
-data BasisMatroid a = BasisM -- ^ matroid from basis-filter constructor
+data BasisFilterMatroid a = BasisM -- ^ matroid from basis-filter constructor
                    (Set a) -- ^ ground set of the matroid
                    (Set a -> Set a) -- ^ function that returns a maximal independent subset of its input
+            
                    
-instance Show a => Show (BasisMatroid a) where
+instance Show a => Show (BasisFilterMatroid a) where
     show (BasisM g _) = "fromBasis (" ++ (show g) ++ ") (basis)"
     
-instance Ord a => Matroid BasisMatroid a where
+instance Ord a => Matroid BasisFilterMatroid a where
     groundset (BasisM e _) = e
     basis (BasisM _ b) = b
     
 -- | matroid constructor given groundset and set-basis filter
-fromBasisFilter :: (Set a) {- ^ ground set -} -> (Set a -> Set a) {- ^ returns maximal independent subset -} -> (BasisMatroid a)
+fromBasisFilter :: (Set a) {- ^ ground set -} -> (Set a -> Set a) {- ^ returns maximal independent subset -} -> (BasisFilterMatroid a)
 fromBasisFilter = BasisM

@@ -32,7 +32,10 @@ import Data.Matroid.Internal
 data UniformMatroid a = U -- ^ uniform matroid constructor
                         (Set a) -- ^ ground set of the uniform matroid
                         Int -- ^ rank of the uniform matroid (provided that groundset is big enough), must be >= 0.   
-                    deriving (Eq, Ord, Show)
+                    deriving (Eq, Ord)
+                    
+instance Show a => Show (UniformMatroid a) where
+  show (U e r) = "uniformOn (" ++ show e ++ ") " ++ show r
                     
 instance Ord a => Matroid UniformMatroid a where
     groundset (U e _) = e
@@ -65,7 +68,7 @@ uniformOn e r
 
 -- | data type that represents a free matroid over a given set (free matroids are of course uniform)
 data FreeMatroid a = Free (Set a) -- ^ ground set
-                   deriving (Eq, Ord, Show)
+                   deriving (Eq, Ord)
                    
 instance Ord a => Matroid FreeMatroid a where
   groundset (Free e) = e
@@ -73,6 +76,9 @@ instance Ord a => Matroid FreeMatroid a where
   indep _ _ = True
   basis _ = id
   cl _ = id
+  
+instance Show a => Show (FreeMatroid a) where
+  show (Free e) = "freeOn (" ++ show e ++ ")"
   
 -- | returns a free matroid on a given ground set (where every subset of the groundset is independent)
 freeOn :: Ord a => 
