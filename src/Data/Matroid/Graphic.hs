@@ -109,9 +109,26 @@ instance (Ord a, Ord v) => Matroid (GraphicMatroid v) a where
                step f e = doContinue f $ insertEdgeOrGetCycleComponent f e $ inc e
                doContinue f (Left _) = f -- edge e closes a cycle, continue with previous forrest
                doContinue _ (Right f) = f -- edge e added to the forrest f
-    -- | there is really no better way to determine the rank of a set
-    rk m = length . basis m
-    
+    -- | count the size while determining the spanning forrest
+    rk (MG _ inc) x = result
+       where (_,result) = S.foldl' step (emptyForrest, 0) x 
+             step (f,r) e = doContinue f r $ insertEdgeOrGetCycleComponent f e $ inc e
+             doContinue f r (Left _) = (f,r) -- edge e closes a cycle, continue with previous forrest
+             doContinue _ r (Right f) = (f,r+1) -- edge e added to the forrest f
+    -- | determine a spanning forrest of x, then add all elements from e\x that are either loops or stay within a single component
+    cl (MG e inc) x = x `S.union` cx
+         where F _ component_map _ = S.foldl' step emptyForrest x 
+               step f g = doContinue f $ insertEdgeOrGetCycleComponent f g $ inc g
+               doContinue f (Left _) = f -- edge e closes a cycle, continue with previous forrest
+               doContinue _ (Right f) = f -- edge e added to the forrest f
+               cx = S.filter inClosure $ S.difference e x
+               inClosure y = let (u,v) = inc y
+                                 loop = u == v
+                                 uc = M.lookup u component_map
+                                 vc = M.lookup v component_map
+                                 single_component = uc == vc && (uc /= Nothing)
+                             in loop || single_component
+
 -- | constructs a GraphicMatroid from a set of (abstract) edges and the incident-vertex map
 fromGraph :: Ord a => Set a -- ^ set of edges of the (multi-)graph
                    -> (a -> (v,v))
