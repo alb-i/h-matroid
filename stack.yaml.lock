@@ -3,7 +3,49 @@
 # For more information, please see the documentation at:
 #   https://docs.haskellstack.org/en/stable/lock_files
 
-packages: []
+packages:
+- completed:
+    hackage: QuickCheck-2.14.2@sha256:4ce29211223d5e6620ebceba34a3ca9ccf1c10c0cf387d48aea45599222ee5aa,7736
+    pantry-tree:
+      size: 2315
+      sha256: 2fe423d0ed7cd64f0f165d708779f48814e66c4f181c568468134af55d86a5f8
+  original:
+    hackage: QuickCheck-2.14.2@sha256:4ce29211223d5e6620ebceba34a3ca9ccf1c10c0cf387d48aea45599222ee5aa,7736
+- completed:
+    hackage: hspec-2.7.5@sha256:e13681f5539a171b30f06aeacfdb9001f601e694702bb69a7ee03bde9f983100,1709
+    pantry-tree:
+      size: 583
+      sha256: cebf81eda4907a3abc98edf74d41e7171f8b0c0527efe9eae42e65a3446ec5c8
+  original:
+    hackage: hspec-2.7.5@sha256:e13681f5539a171b30f06aeacfdb9001f601e694702bb69a7ee03bde9f983100,1709
+- completed:
+    hackage: hspec-discover-2.7.5@sha256:b2cb9b71b654818ca1b394d169beba0a2b3d67722af620c820199e1821aaa2ee,2183
+    pantry-tree:
+      size: 1131
+      sha256: a259848df6dde77de2d3817308233c3854975a8de7ea026d376900e62582d74a
+  original:
+    hackage: hspec-discover-2.7.5@sha256:b2cb9b71b654818ca1b394d169beba0a2b3d67722af620c820199e1821aaa2ee,2183
+- completed:
+    hackage: random-1.2.0@sha256:3337fb944048b49ada7ac70771e9040382da8dcc7058570dd6835af5cc40b822,6094
+    pantry-tree:
+      size: 1259
+      sha256: 8fa9df706e83077a3fd5a764c10bca1afa8097a87ad15c213ee6c259e3a0b1f6
+  original:
+    hackage: random-1.2.0@sha256:3337fb944048b49ada7ac70771e9040382da8dcc7058570dd6835af5cc40b822,6094
+- completed:
+    hackage: splitmix-0.1.0.3@sha256:fc3aae74c467f4b608050bef53aec17904a618731df9407e655d8f3bf8c32d5c,6049
+    pantry-tree:
+      size: 1400
+      sha256: 8290f921f41c3628a6c9871502e57fd1d25f5954967afbf4ed16717fd8d3656f
+  original:
+    hackage: splitmix-0.1.0.3@sha256:fc3aae74c467f4b608050bef53aec17904a618731df9407e655d8f3bf8c32d5c,6049
+- completed:
+    hackage: hspec-core-2.7.5@sha256:19f6cf8cbfc9720709f59508f2226de4818f0e06af53e7597f165eaff6f2578f,4574
+    pantry-tree:
+      size: 3799
+      sha256: c1b8d0de4b7b8bf5becb0484a996cf3ba8a3a71fe000c4bd6382cc866b01f113
+  original:
+    hackage: hspec-core-2.7.5@sha256:19f6cf8cbfc9720709f59508f2226de4818f0e06af53e7597f165eaff6f2578f,4574
 snapshots:
 - completed:
     size: 533252

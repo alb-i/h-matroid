@@ -24,9 +24,9 @@ Library
                       , Test.Matroid.Generators
                       , Test.Matroid.Suites
   Build-Depends:        base >= 4 && < 5
-                      , containers >= 0.6
-                      , hspec
-                      , QuickCheck
+                      , containers >= 0.6.2 && < 0.7
+                      , hspec >= 2.7.5 && < 2.8
+                      , QuickCheck >= 2.14.2 && < 2.15
 
 Test-Suite spec
   Type:                 exitcode-stdio-1.0

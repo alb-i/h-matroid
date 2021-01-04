@@ -17,7 +17,7 @@ cabal install matroid
 
 TODO: Write usage instructions here
 
-## How to run tests
+## How to run the library tests
 
 ```
 stack clean && stack build --test --coverage

@@ -49,10 +49,10 @@ hasIndepExchangeProperty :: Ord a => (Set a -> Bool) {- ^ the indep function -}
                                   -> Set a {- ^ Y -} 
                                   -> Bool
 hasIndepExchangeProperty indep x y
-    | (indep x) && (indep y) == False   = True -- vacuously true property
-    | length x == length y              = True -- vacuously true property
-    | length x > length y               = check y $ S.toList $ x `S.difference` y
-    | otherwise                         = check x $ S.toList $ y `S.difference` x
+    | not ((indep x) && (indep y))        = True -- vacuously true property
+    | length x == length y                = True -- vacuously true property
+    | length x > length y                 = check y $ S.toList $ x `S.difference` y
+    | otherwise                           = check x $ S.toList $ y `S.difference` x
     where check x_ (x0:xs)
             | indep $ x_ `S.union` S.singleton x0 = True -- we found a candidate from Y\X that can be used to augment X
             | otherwise                            = check x_ xs -- try the other candidates
