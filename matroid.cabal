@@ -19,8 +19,14 @@ Library
                       , Data.Matroid.Typeclass
                       , Data.Matroid.Internal
                       , Data.Matroid.Graphic
+                      , Test.Matroid
+                      , Test.Matroid.Helpers
+                      , Test.Matroid.Generators
+                      , Test.Matroid.Suites
   Build-Depends:        base >= 4 && < 5
                       , containers >= 0.6
+                      , hspec
+                      , QuickCheck
 
 Test-Suite spec
   Type:                 exitcode-stdio-1.0
