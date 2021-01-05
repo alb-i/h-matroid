@@ -66,9 +66,12 @@ spec = do
         it "wrong arguments should produce errors" $ do
             evaluate (uniform (-1) 0) `shouldThrow` anyErrorCall
             evaluate (uniform 0 (-1)) `shouldThrow` anyErrorCall
-            evaluate (uniform 0 1) `shouldThrow` anyErrorCall
-          
+            evaluate (uniform 0 1) `shouldThrow` anyErrorCall      
     describe "Data.Matroid.Uniform.freeOn" $ matroid_suite_eq_ord genFreeMatroids
-    describe "Data.Matroid.fromRk" $ matroid_suite $ viaRank genUniformMatroids
-    describe "Data.Matroid.fromIndep" $ matroid_suite $ viaIndep genUniformMatroids
-    describe "Data.Matroid.fromBasisFilter" $ matroid_suite $ viaBasisFilter genUniformMatroids
+    describe "Data.Matroid.Graphic.fromGraph" $ matroid_suite $ genGraphicMatroids
+    describe "Data.Matroid.fromRk" $ do matroid_suite $ viaRank genUniformMatroids
+                                        matroid_suite $ viaRank genGraphicMatroids
+    describe "Data.Matroid.fromIndep" $ do matroid_suite $ viaIndep genUniformMatroids
+                                           matroid_suite $ viaIndep genGraphicMatroids
+    describe "Data.Matroid.fromBasisFilter" $ do matroid_suite $ viaBasisFilter genUniformMatroids
+                                                 matroid_suite $ viaBasisFilter genGraphicMatroids

@@ -34,6 +34,9 @@ data GraphicMatroid v a =
        {- ^ map that maps the edge e to the set of its incident vertices {u,v}; 
             the order is ignored, and {v} is represented by (v,v) -}
 
+instance Show a => Show (GraphicMatroid v a) where
+    show (MG e _) = "fromGraph (" ++ show e ++ ") (incidence)"
+            
 -- | data type to keep track of forrests in a (multi-)graph
 data Forrest v a = F Int {- ^ fresh component id counter -}
                      (Map v Int) {- ^ tracks which vertex belongs to which component -}

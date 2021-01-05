@@ -25,13 +25,28 @@ import qualified Data.Set as S
 
 -- | a generator for uniform matroids of a reasonable size
 genUniformMatroids :: Gen (UniformMatroid Int)
-genUniformMatroids = do r <- (arbitrary :: Gen Int) `suchThat` (>= 0) `suchThat` (<= 25) 
-                        n <- (arbitrary :: Gen Int) `suchThat` (>= r) `suchThat` (<= 100)
+genUniformMatroids = do r <- chooseInt (0,25)
+                        n <- chooseInt (r,100)
                         return $ uniform n r
+
+-- | a generator for graphic matroids of reasonable size
+genGraphicMatroids :: Gen (GraphicMatroid Int (Int,Int,Int))
+genGraphicMatroids =  do v_ <- chooseInt (1,8) 
+                         n_ <- chooseInt (0,100) 
+                         let genEdges v n -- :: Gen [(Int,Int,Int)]
+                                    | n == 0 = return $ []
+                                    | otherwise = do s <- chooseInt (1,v)
+                                                     t <- chooseInt (1,v)
+                                                     gs <- genEdges v (n-1)
+                                                     return $ (n,s,t) : gs
+                           in do
+                               labeledEdges <- genEdges v_ n_
+                               let inc (_,a,b) = (a,b)
+                                in return $ fromGraph (S.fromList labeledEdges) inc
                           
 -- | a generator for free matroids of a reasonable size
 genFreeMatroids :: Gen (FreeMatroid Int)
-genFreeMatroids = do n <- (arbitrary :: Gen Int) `suchThat` (<= 30)
+genFreeMatroids = do n <- chooseInt (0,10) --(arbitrary :: Gen Int) `suchThat` (<= 30)
                      return $ freeOn $ S.fromList [1..n]
                        
 -- | a generator for consintency matroid type based on another generator
