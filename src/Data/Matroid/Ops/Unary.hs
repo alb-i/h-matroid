@@ -29,6 +29,7 @@ import Data.Map (Map)
 import qualified Data.Map as M
 
 import Data.Matroid.Typeclass
+import qualified Data.Matroid.Typeclass.Defaults as D
 
 instance (Show (m a), Show a) => Show (UnaryDerivedMatroid m a) where
   show (IdMatroid m) = "mopInject (" ++ show m ++ ")"
@@ -64,10 +65,7 @@ instance (Matroid m a) => Matroid (UnaryDerivedMatroid m) a where
   loops (RestrictedMatroid m e) = S.intersection e $ loops m
   
   coRk (IdMatroid m) x = coRk m x
-  coRk (RestrictedMatroid m e) x = (rk m $ e `S.difference` x) + (length x) - (rk m x)
+  coRk (RestrictedMatroid m e) x = D.coRk (rk m) e x
   
   coloops (IdMatroid m) = coloops m
-  coloops (RestrictedMatroid m e) = isColoop `S.filter` e
-      where rkM = rk m e
-            isColoop x = -- a coloop c is in every basis, thus a basis of E\{c} cannot be a basis of E. 
-             rk m (e `S.difference` S.singleton x) == rkM - 1
+  coloops (RestrictedMatroid m e) = D.coloops (rk m) e
