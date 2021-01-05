@@ -166,15 +166,14 @@ clPropertiesSuite genMatroids = context "cl properties" $ do
         cx = cl m x
       in return $ rk m x == rk m cx
       
-  {- | tests rk,indep,basis,cl for equality against the default implementations wrt. rk,indep,basis
+{- | tests a given matroid implementation for equality against the default implementations
     
   rk, indep, and cl should produce the same output when given the same input.
   
   basis however is only required to produce a basis of the given subset, and which basis is
   produced really depends on how the basis is derived. Here, we are ok if b1 and b2 have
-    cl1(b1) == cl1(b2) == cl2(b1) == cl2(b2) [technically, we are overchecking here.]
-  
-   -}
+    cl1(b1) == cl1(b2) == cl2(b1) == cl2(b2).
+-}
 viaConsistencySuite :: Matroid m a => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
 viaConsistencySuite genMatroids = context "implementation consistency" $ do
   let via_rk m_ = fromRk (groundset m_) (rk m_)
