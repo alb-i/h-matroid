@@ -69,9 +69,13 @@ spec = do
             evaluate (uniform 0 1) `shouldThrow` anyErrorCall      
     describe "Data.Matroid.Uniform.freeOn" $ matroid_suite_eq_ord genFreeMatroids
     describe "Data.Matroid.Graphic.fromGraph" $ matroid_suite $ genGraphicMatroids
+    describe "Data.Matroid.Graphic.mK" $ matroid_suite $ genMKnMatroids
     describe "Data.Matroid.fromRk" $ do matroid_suite $ viaRank genUniformMatroids
                                         matroid_suite $ viaRank genGraphicMatroids
+                                        matroid_suite $ viaRank genMKnMatroids
     describe "Data.Matroid.fromIndep" $ do matroid_suite $ viaIndep genUniformMatroids
                                            matroid_suite $ viaIndep genGraphicMatroids
+                                           matroid_suite $ viaIndep genMKnMatroids
     describe "Data.Matroid.fromBasisFilter" $ do matroid_suite $ viaBasisFilter genUniformMatroids
                                                  matroid_suite $ viaBasisFilter genGraphicMatroids
+                                                 matroid_suite $ viaBasisFilter genMKnMatroids

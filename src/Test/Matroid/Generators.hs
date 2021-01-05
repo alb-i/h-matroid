@@ -36,13 +36,18 @@ genGraphicMatroids =  do v_ <- chooseInt (1,8)
                          let genEdges v n -- :: Gen [(Int,Int,Int)]
                                     | n == 0 = return $ []
                                     | otherwise = do s <- chooseInt (1,v)
-                                                     t <- chooseInt (1,v)
+                                                     t <- chooseInt (1,v) `suchThat` (>= s)
                                                      gs <- genEdges v (n-1)
                                                      return $ (n,s,t) : gs
                            in do
                                labeledEdges <- genEdges v_ n_
                                let inc (_,a,b) = (a,b)
                                 in return $ fromGraph (S.fromList labeledEdges) inc
+
+-- | a generator for M(K_n) matroids of reasonable size
+genMKnMatroids :: Gen (GraphicMatroid Int (Int,Int))
+genMKnMatroids = do n <- chooseInt(1,8)
+                    return $ mK n
                           
 -- | a generator for free matroids of a reasonable size
 genFreeMatroids :: Gen (FreeMatroid Int)
