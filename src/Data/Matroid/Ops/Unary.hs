@@ -33,6 +33,7 @@ import Data.Matroid.Typeclass
 instance (Show (m a), Show a) => Show (UnaryDerivedMatroid m a) where
   show (IdMatroid m) = "mopInject (" ++ show m ++ ")"
   show (RestrictedMatroid m e) = "( " ++ show m ++ " `restriction` " ++ show e ++")"
+  show (ContractedMatroid m e _ _ _) = "( " ++ show m ++ " `contraction` " ++ show e ++ ")"
   
   
 {--- This is a little bit of tedious busywork, if there's a better way, let me know! ---}
@@ -40,12 +41,15 @@ instance (Matroid m a) => Matroid (UnaryDerivedMatroid m) a where
   {--- I. ---}
   groundset (IdMatroid m) = groundset m
   groundset (RestrictedMatroid _ e) = e
+  groundset (ContractedMatroid _ e _ _ _) = e
   
   rk (IdMatroid m) = rk m
   rk (RestrictedMatroid m _) = rk m
+  rk (ContractedMatroid m _ t rkt _) = flip (-) rkt . rk m . S.union t
   
   indep (IdMatroid m) = indep m
   indep (RestrictedMatroid m _) = indep m
+  indep (ContractedMatroid m _ _ _ b) = indep m . S.union b
   
   basis (IdMatroid m) = basis m
   basis (RestrictedMatroid m _) = basis m

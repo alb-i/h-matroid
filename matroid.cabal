@@ -18,6 +18,7 @@ Library
   Exposed-Modules:      Data.Matroid
                       , Data.Matroid.Uniform
                       , Data.Matroid.Typeclass
+                      , Data.Matroid.Typeclass.Defaults
                       , Data.Matroid.Internal
                       , Data.Matroid.Graphic
                       , Data.Matroid.Ops

@@ -16,6 +16,8 @@ This module provides the Matroid typeclass.
 module Data.Matroid.Typeclass where
   
 import Data.Matroid.Ops.Unary.Internal
+
+import qualified Data.Matroid.Typeclass.Defaults as D
     
 import Data.Set (Set)
 import qualified Data.Set as S
@@ -87,10 +89,15 @@ class Ord a => Matroid m a
     identity :: m a {- ^ matroid -} -> UnaryDerivedMatroid m a
     identity = mopInject
              
-    -- | returns the restricted matroid M|X as result of the unary matroid operation .|X
+    -- | returns the restricted matroid M|X as result of the unary matroid operation *|X
     restriction :: m a {- ^ the matroid -} -> Set a {- ^ restricts the ground set to this set-}
        -> UnaryDerivedMatroid m a
     restriction m x = mopRestriction m $ x `S.intersection` groundset m
+    
+    -- | returns the contracted matroid M.X as a result of the unary matroid operation *.X
+    contraction :: m a {- ^ the matroid -} -> Set a {- ^ contracts the ground set onto this set -}
+       -> UnaryDerivedMatroid m a
+    contraction m x = mopContraction m (groundset m) (basis m) $ x `S.intersection` groundset m
     
     {--- III. There is generally less to gain from implementing the following 
               routines in your own Matroid instances. ---}
