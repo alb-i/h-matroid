@@ -16,6 +16,7 @@ This module provides implementations of graphic matroids.
 module Data.Matroid.Graphic
   ( GraphicMatroid
   , fromGraph
+  , mK
   ) where 
 
 import Data.Set (Set)
@@ -139,3 +140,11 @@ fromGraph :: Ord a => Set a -- ^ set of edges of the (multi-)graph
                         the order is ignored, and {v} is represented by (v,v) -}
                    -> GraphicMatroid v a
 fromGraph = MG
+
+-- | constructs the graphic matroid M(K_n) where K_n is the complete graph on n vertices
+mK :: Int -- ^ n = number of vertices in K_n
+      -> GraphicMatroid Int (Int,Int)
+mK n = fromGraph e id
+  where e = S.fromList [(u,v) | u <- [1..n]
+                              , v <- [1..n]
+                              , u < v]
