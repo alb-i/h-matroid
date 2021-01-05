@@ -48,38 +48,25 @@ class Ord a => Matroid m a
     rk :: m a -- ^ the matroid 
       -> Set a -- ^ set of matroid elements
       -> Int
-    rk m = length . basis m
+    rk m = D.rk (basis m)
     
     -- | tests whether a given set is independent
     indep :: m a -- ^ the matroid 
       -> Set a -- ^ set of matroid elements
       -> Bool
-    indep m x = rk m x == length x -- a set is independent iff its rank equals its cardinality
+    indep m = D.indep (rk m)
     
     -- | obtains an independent subset with maximal cardinality
     basis :: m a -- ^ the matroid
       -> Set a -- ^ set of matroid elements
       -> Set a
-    basis m = S.foldl' augmentIndep (S.empty :: Set a) -- beware that I have not tested this fold as of now
-         where 
-             augmentIndep b0 x {- adds x to b0 if b0 + {x} is independent -}
-               | indep m b_aug = b_aug
-               | otherwise = b0
-               where 
-                   b_aug = S.insert x b0
+    basis m = D.basis (indep m)
                    
     -- | computes the closure of a given set
     cl :: m a -- ^ the matroid
       -> Set a -- ^ set of matroid elements 
       -> Set a
-    cl m x = S.foldl' augmentDep x $ groundset m -- beware that I have not tested this fold as of now
-        where 
-           rank_x = rk m x
-           augmentDep f0 e {- adds e to f0 if the rank of f0+{e} stays the same -}
-             | rk m f_aug == rank_x = f_aug
-             | otherwise = f0
-             where 
-               f_aug = S.insert e f0
+    cl m = D.cl (rk m) (groundset m)
                
     {--- II. We provide standard implementations of these operations, 
              but you probably want to roll your own,
@@ -104,17 +91,12 @@ class Ord a => Matroid m a
     
     -- | returns the loops in the matroid
     loops :: m a {- ^ the matroid -} -> Set a
-    loops m = cl m S.empty -- i.e. all elements e with rk({e}) = 0; i.e. all elements with not indep {e}; ...
+    loops m = D.loops (cl m)
     
     -- | rank function of the dual matroid
     coRk :: m a {- ^ the matroid -} -> Set a {- ^ set of matroid elements -} -> Int
-    coRk m x = (rk m e_minus_x) + (length x) - (rk m x)
-       where e_minus_x = groundset m `S.difference` x
+    coRk m = D.coRk (rk m) (groundset m)
        
     -- | returns the coloops in the matroid
     coloops :: m a {- ^ the matroid -} -> Set a
-    coloops m = isColoop `S.filter` groundset m
-       where e = groundset m
-             rkM = rk m e
-             isColoop x = -- a coloop c is in every basis, thus a basis of E\{c} cannot be a basis of E. 
-              rk m (e `S.difference` S.singleton x) == rkM - 1
+    coloops m = D.coloops (rk m) (groundset m)
