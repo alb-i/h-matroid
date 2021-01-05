@@ -54,9 +54,15 @@ instance (Matroid m a) => Matroid (UnaryDerivedMatroid m) a where
   
   basis (IdMatroid m) = basis m
   basis (RestrictedMatroid m _) = basis m
+  basis m@(ContractedMatroid _ _ _ _ _) = 
+    {- we have to use the default implementation, 
+       because there is no guarantee that b is a subset of the filtered basis of (basis m x)
+     -}
+    D.basis (indep m) 
   
   cl (IdMatroid m) = cl m
   cl (RestrictedMatroid m e) = (S.intersection e) . cl m
+  cl (ContractedMatroid m e t _ _) = (S.intersection e) . cl m . S.union t
   
   {--- II. ---}
   
