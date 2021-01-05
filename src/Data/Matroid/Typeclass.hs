@@ -14,6 +14,8 @@ This module provides the Matroid typeclass.
 -}
 
 module Data.Matroid.Typeclass where
+  
+import Data.Matroid.Ops.Unary.Internal
     
 import Data.Set (Set)
 import qualified Data.Set as S
@@ -31,6 +33,12 @@ import qualified Data.Set as S
 -}
 class Ord a => Matroid m a 
     where
+    
+    {--- I. The routines in this section are worth to look at in 
+            your implementation of a Matroid instance ---}
+            
+    {-# MINIMAL groundset, (rk | indep | basis) #-}
+    
     -- | The ground set of the matroid, its elements are usually called edges. This set is finite.
     groundset :: m a -> Set a
     
@@ -70,5 +78,36 @@ class Ord a => Matroid m a
              | otherwise = f0
              where 
                f_aug = S.insert e f0
-      
-    {-# MINIMAL groundset, (rk | indep | basis) #-}
+               
+    {--- II. We provide standard implementations of these operations, 
+             but you probably want to roll your own,
+             in order to improve performance ---}
+             
+    -- | returns this matroid as the result of the unary identity operation on matroids
+    identity :: m a {- ^ matroid -} -> UnaryDerivedMatroid m a
+    identity = mopInject
+             
+    -- | returns the restricted matroid M|X as result of the unary matroid operation .|X
+    restriction :: m a {- ^ the matroid -} -> Set a {- ^ restricts the ground set to this set-}
+       -> UnaryDerivedMatroid m a
+    restriction m x = mopRestriction m $ x `S.intersection` groundset m
+    
+    {--- III. There is generally less to gain from implementing the following 
+              routines in your own Matroid instances. ---}
+    
+    -- | returns the loops in the matroid
+    loops :: m a {- ^ the matroid -} -> Set a
+    loops m = cl m S.empty -- i.e. all elements e with rk({e}) = 0; i.e. all elements with not indep {e}; ...
+    
+    -- | rank function of the dual matroid
+    coRk :: m a {- ^ the matroid -} -> Set a {- ^ set of matroid elements -} -> Int
+    coRk m x = (rk m e_minus_x) + (length x) - (rk m x)
+       where e_minus_x = groundset m `S.difference` x
+       
+    -- | returns the coloops in the matroid
+    coloops :: m a {- ^ the matroid -} -> Set a
+    coloops m = isColoop `S.filter` groundset m
+       where e = groundset m
+             rkM = rk m e
+             isColoop x = -- a coloop c is in every basis, thus a basis of E\{c} cannot be a basis of E. 
+              rk m (e `S.difference` S.singleton x) == rkM - 1

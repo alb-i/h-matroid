@@ -21,6 +21,7 @@ module Data.Matroid
     module Data.Matroid.Typeclass
   , module Data.Matroid.Uniform
   , module Data.Matroid.Graphic
+  , module Data.Matroid.Ops
   , fromRk
   , fromIndep
   , fromBasisFilter
@@ -30,3 +31,4 @@ import Data.Matroid.Typeclass
 import Data.Matroid.Internal 
 import Data.Matroid.Uniform
 import Data.Matroid.Graphic
+import Data.Matroid.Ops

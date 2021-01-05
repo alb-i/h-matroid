@@ -20,6 +20,9 @@ Library
                       , Data.Matroid.Typeclass
                       , Data.Matroid.Internal
                       , Data.Matroid.Graphic
+                      , Data.Matroid.Ops
+                      , Data.Matroid.Ops.Unary
+                      , Data.Matroid.Ops.Unary.Internal
                       , Test.Matroid
                       , Test.Matroid.Helpers
                       , Test.Matroid.Generators
