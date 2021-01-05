@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses #-}
+{-# LANGUAGE MultiParamTypeClasses,FlexibleInstances #-}
 
 {-|
 Module      : Data.Matroid.Typeclass
@@ -13,9 +13,24 @@ This module provides the Matroid typeclass.
 
 -}
 
-module Data.Matroid.Typeclass where
+module Data.Matroid.Typeclass (
+    Matroid
+  , groundset
+  , rk
+  , indep
+  , basis
+  , cl
+  , abstract
+  , restriction
+  , contraction
+  , loops
+  , coRk
+  , coloops
+  , AMatroid
+  , wrapUp
+) where
   
-import Data.Matroid.Ops.Unary.Internal
+--import Data.Matroid.Ops.Unary.Internal
 
 import qualified Data.Matroid.Typeclass.Defaults as D
     
@@ -73,18 +88,18 @@ class Ord a => Matroid m a
              in order to improve performance ---}
              
     -- | returns this matroid as the result of the unary identity operation on matroids
-    identity :: m a {- ^ matroid -} -> UnaryDerivedMatroid m a
-    identity = mopInject
+    abstract :: m a {- ^ matroid -} -> AMatroid a
+    abstract m = wrapUp m
              
     -- | returns the restricted matroid M|X as result of the unary matroid operation *|X
     restriction :: m a {- ^ the matroid -} -> Set a {- ^ restricts the ground set to this set-}
-       -> UnaryDerivedMatroid m a
-    restriction m x = mopRestriction m $ x `S.intersection` groundset m
+       -> AMatroid a
+    restriction m x = undefined -- mopRestriction m $ x `S.intersection` groundset m
     
     -- | returns the contracted matroid M.X as a result of the unary matroid operation *.X
     contraction :: m a {- ^ the matroid -} -> Set a {- ^ contracts the ground set onto this set -}
-       -> UnaryDerivedMatroid m a
-    contraction m x = mopContraction m (groundset m) (basis m) $ x `S.intersection` groundset m
+       -> AMatroid a
+    contraction m x = undefined -- mopContraction m (groundset m) (basis m) $ x `S.intersection` groundset m
     
     {--- III. There is generally less to gain from implementing the following 
               routines in your own Matroid instances. ---}
@@ -100,3 +115,50 @@ class Ord a => Matroid m a
     -- | returns the coloops in the matroid
     coloops :: m a {- ^ the matroid -} -> Set a
     coloops m = D.coloops (rk m) (groundset m)
+
+-- | abstract matroid data type with elements of a given type; its purpose is to hide the underlying type from the type system.
+data AMatroid a = WrappedMatroid {
+  {--- I. ---}
+     
+    
+    w_groundset :: Set a 
+  , w_rk :: Set a -> Int
+  , w_indep :: Set a -> Bool
+  , w_basis :: Set a -> Set a
+  , w_cl :: Set a -> Set a
+  {--- II. ---}
+  
+  {--- III. ---}
+  ,  w_loops ::  Set a
+  ,  w_coRk :: Set a -> Int
+  ,  w_coloops ::  Set a   
+}
+
+-- | takes an object of a type that implements the Matroid typeclass, and turns it into an AMatroid record.
+wrapUp :: Matroid m a => m a -> AMatroid a
+wrapUp m = WrappedMatroid{ w_groundset = groundset m
+                         , w_rk = rk m
+                         , w_indep = indep m
+                         , w_basis = basis m
+                         , w_cl = cl m
+                         , w_loops = loops m
+                         , w_coRk = coRk m
+                         , w_coloops = coloops m
+                         }
+                
+instance Show a => Show (AMatroid a) where
+  show x = "wrapUp (" ++ show (w_groundset x) ++ ") (...)"
+  
+instance Ord a => Matroid AMatroid a where
+  {--- I. ---}
+  groundset = w_groundset
+  rk = w_rk
+  indep = w_indep
+  basis = w_basis
+  cl = w_cl
+  {--- II. ---}
+  abstract = id -- it has been wrapped before
+  {--- III. ---}
+  loops = w_loops
+  coRk = w_coRk
+  coloops = w_coloops
