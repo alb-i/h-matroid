@@ -33,9 +33,198 @@ matroidSuite g = do
   basisPropertiesSuite g
   clPropertiesSuite g
   viaConsistencySuite g
+  opInvariantsSuite g
+
+{- | tests the invariants associated with operations on matroids
+
+   - rk_{M|X}(Y) = rk_M(Y)
+   - coRk_{M.X}(Y) = coRk_M(Y)
+   
+   - rk_(M^*)(Y) = coRk_M(Y)
+   
+   - loop(M) = coloop(M^*)
+   - coloop(M^*) = loop(M)
+   
+   - groundsets of restriction/contraction
+   - restriction is the dual of contraction
+-}
+opInvariantsSuite :: Matroid m a => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
+opInvariantsSuite genMatroids = context "op invariants" $ do
+  it "rk_{M|X}(Y) = rk_M(Y)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    y0 <- sublistOf x0
+    let x = S.fromList x0
+        y = S.fromList y0
+        m_ = m `restriction` x
+      in return $ rk m y == rk m_ y
+  it "coRk_{M.X}(Y) = coRk_M(Y)" $ property $ do
+      m <- genMatroids
+      x0 <- sublistOf $ S.toList $ groundset m
+      y0 <- sublistOf x0
+      let x = S.fromList x0
+          y = S.fromList y0
+          m_ = m `contraction` x
+        in return $ coRk m y == coRk m_ y
+  it "rk_(M^*)(Y) = coRk_M(Y)" $ property $ do
+      m <- genMatroids
+      x0 <- sublistOf $ S.toList $ groundset m
+      let x = S.fromList x0
+          m_ = dual m
+        in return $ rk m_ x == coRk m x
+  it "loops(M) = coloops(M^*)" $ property $ do
+      m <- genMatroids
+      let m_ = dual m
+        in return $ coloops m_ == loops m
+  it "coloops(M) = loops(M^*)" $ property $ do
+    m <- genMatroids
+    let m_ = dual m
+      in return $ coloops m == loops m_
+  it "groundsets of restriction" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    let x = S.fromList x0
+        m1 = m `restriction` x
+      in return $ x == groundset m1
+  it "groundsets of contraction" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    let x = S.fromList x0
+        m1 = m `contraction` x
+      in return $ x == groundset m1
+  it "duality restriction/contraction (via rk)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    y0 <- sublistOf x0
+    let x = S.fromList x0
+        y = S.fromList y0
+        mr = dual (m `restriction` x)
+        mc = (dual m) `contraction` x
+      in return $ rk mr y == rk mc y
+  it "duality restriction/contraction (via indep)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    y0 <- sublistOf x0
+    let x = S.fromList x0
+        y = S.fromList y0
+        mr = dual (m `restriction` x)
+        mc = (dual m) `contraction` x
+      in return $ indep mr y == indep mc y
+  it "duality restriction/contraction (via basis)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    y0 <- sublistOf x0
+    let x = S.fromList x0
+        y = S.fromList y0
+        m1 = dual (m `restriction` x)
+        m2 = (dual m) `contraction` x
+        b1 = basis m1 x
+        b2 = basis m2 x
+        c1b1 = cl m1 b1
+        c1b2 = cl m1 b2
+        c2b1 = cl m2 b1
+        c2b2 = cl m2 b2
+      in return $ (c1b1 == c1b2) && (c1b1 == c2b1) && (c1b1 == c2b2)
+  it "duality restriction/contraction (via cl)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    y0 <- sublistOf x0
+    let x = S.fromList x0
+        y = S.fromList y0
+        mr = dual (m `restriction` x)
+        mc = (dual m) `contraction` x
+      in return $ cl mr y == cl mc y
+  it "duality restriction/contraction (via coRk)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    y0 <- sublistOf x0
+    let x = S.fromList x0
+        y = S.fromList y0
+        mr = dual (m `restriction` x)
+        mc = (dual m) `contraction` x
+      in return $ coRk mr y == coRk mc y
+  it "duality restriction/contraction (loops)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    let x = S.fromList x0
+        mr = dual (m `restriction` x)
+        mc = (dual m) `contraction` x
+      in return $ loops mr == loops mc
+  it "duality restriction/contraction (coloops)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    let x = S.fromList x0
+        mr = dual (m `restriction` x)
+        mc = (dual m) `contraction` x
+      in return $ coloops mr == coloops mc
+  it "duality restriction/contraction (via rk, alternative)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    y0 <- sublistOf x0
+    let x = S.fromList x0
+        y = S.fromList y0
+        mr = (m `restriction` x)
+        mc = dual $ (dual m) `contraction` x
+      in return $ rk mr y == rk mc y
+  it "duality restriction/contraction (via indep, alternative))" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    y0 <- sublistOf x0
+    let x = S.fromList x0
+        y = S.fromList y0
+        mr = (m `restriction` x)
+        mc = dual $ (dual m) `contraction` x
+      in return $ indep mr y == indep mc y
+  it "duality restriction/contraction (via basis, alternative)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    y0 <- sublistOf x0
+    let x = S.fromList x0
+        y = S.fromList y0
+        m1 = (m `restriction` x)
+        m2 = dual $ (dual m) `contraction` x
+        b1 = basis m1 x
+        b2 = basis m2 x
+        c1b1 = cl m1 b1
+        c1b2 = cl m1 b2
+        c2b1 = cl m2 b1
+        c2b2 = cl m2 b2
+      in return $ (c1b1 == c1b2) && (c1b1 == c2b1) && (c1b1 == c2b2)
+  it "duality restriction/contraction (via cl, alternative)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    y0 <- sublistOf x0
+    let x = S.fromList x0
+        y = S.fromList y0
+        mr = (m `restriction` x)
+        mc = dual $ (dual m) `contraction` x
+      in return $ cl mr y == cl mc y
+  it "duality restriction/contraction (via coRk, alternative)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    y0 <- sublistOf x0
+    let x = S.fromList x0
+        y = S.fromList y0
+        mr = (m `restriction` x)
+        mc = dual $ (dual m) `contraction` x
+      in return $ coRk mr y == coRk mc y
+  it "duality restriction/contraction (loops, alternative)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    let x = S.fromList x0
+        mr = (m `restriction` x)
+        mc = dual $ (dual m) `contraction` x
+      in return $ loops mr == loops mc
+  it "duality restriction/contraction (coloops, alternative)" $ property $ do
+    m <- genMatroids
+    x0 <- sublistOf $ S.toList $ groundset m
+    let x = S.fromList x0
+        mr = (m `restriction` x)
+        mc = dual $ (dual m) `contraction` x
+      in return $ coloops mr == coloops mc
 
 
-{- | test suite for rank axioms 
+      {- | test suite for rank axioms 
 
  The following properties are verified:
   -  rk is monotone increasing
@@ -186,6 +375,18 @@ viaConsistencySuite genMatroids = context "implementation consistency" $ do
         let m2 = via_x m1
             x = S.fromList x0
           in return $ fn1 m1 x == fn2 m2 x
+      check_eq via_x fn1 fn2 = -- fn1 and fn2 are the same function but wrt. different types
+       property $ do 
+        m1 <- genMatroids
+        x0 <- sublistOf $ S.toList $ groundset m1
+        let m2 = via_x m1
+            x = S.fromList x0
+          in return $ fn1 m1 x == fn2 m2 x
+      check_eq_set via_x fn1 fn2 = -- fn1 and fn2 are the same function but wrt. different types
+       property $ do 
+        m1 <- genMatroids
+        let m2 = via_x m1
+          in return $ fn1 m1 == fn2 m2 
       check_basis via_x =
        property $ do
         m1 <- genMatroids
@@ -203,9 +404,15 @@ viaConsistencySuite genMatroids = context "implementation consistency" $ do
       it "indep wrt. rk matroid" $  check_eq via_rk indep indep
       it "cl wrt. rk matroid" $  check_eq via_rk cl cl
       it "basis wrt. rk matroid" $  check_basis via_rk
+      it "loop wrt. rk matroid" $  check_eq_set via_rk loops loops
+      it "coloop wrt. rk matroid" $  check_eq_set via_rk coloops coloops
       it "rk wrt. indep matroid" $  check_eq via_indep rk rk
       it "cl wrt. indep matroid" $  check_eq via_indep cl cl
       it "basis wrt. indep matroid" $  check_basis via_indep
+      it "loop wrt. indep matroid" $  check_eq_set via_indep loops loops
+      it "coloop wrt. indep matroid" $  check_eq_set via_indep coloops coloops
       it "indep wrt. basis matroid" $  check_eq via_basis indep indep
       it "rk wrt. basis matroid" $  check_eq via_basis rk rk
       it "cl wrt. basis matroid" $  check_eq via_basis cl cl
+      it "loop wrt. basis matroid" $  check_eq_set via_basis loops loops
+      it "coloop wrt. basis matroid" $  check_eq_set via_basis coloops coloops
