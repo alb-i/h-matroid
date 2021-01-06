@@ -87,3 +87,9 @@ viaContraction g = do
                     e0 <- sublistOf $ S.toList $ groundset m_
                     let e = S.fromList e0
                      in return $ m_ `contraction` e
+                     
+-- | a generator for matroids of the form M^* based on a generator for M
+viaDual :: Matroid m a => Gen (m a) -> Gen (AMatroid a)
+viaDual g = do
+                m_ <- g
+                return $ dual m_

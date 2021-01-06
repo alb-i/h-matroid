@@ -85,3 +85,6 @@ spec = do
     describe "Data.Matroid.Typeset.contraction" $ do matroid_suite $ viaContraction genUniformMatroids
                                                      matroid_suite $ viaContraction genGraphicMatroids
                                                      matroid_suite $ viaContraction genMKnMatroids
+    describe "Data.Matroid.Typeset.dual" $ do matroid_suite $ viaDual genUniformMatroids
+                                              matroid_suite $ viaDual genGraphicMatroids
+                                              matroid_suite $ viaDual genMKnMatroids

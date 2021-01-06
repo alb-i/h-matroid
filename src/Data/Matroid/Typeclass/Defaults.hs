@@ -69,7 +69,7 @@ coRk :: Ord a =>
       (Set a -> Int) {- ^ the rank function of the matroid -} 
     -> Set a {- ^ the ground set of the matroid -}
     -> Set a {- ^ set of matroid elements -} -> Int
-coRk rk_m groundset_m x = (rk_m e_minus_x) + (length x) - (rk_m x)
+coRk rk_m groundset_m x = (rk_m e_minus_x) + (length x) - (rk_m groundset_m)
     where e_minus_x = groundset_m `S.difference` x
     
 -- | returns the coloops in the matroid

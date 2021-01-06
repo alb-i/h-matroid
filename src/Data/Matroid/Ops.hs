@@ -107,6 +107,7 @@ a_namedRestriction name m x0 = wrappedMatroid {
   , w_loops = pure (S.intersection e) <*> w_loops m
   , w_coRk = pure (\rk_ -> D.coRk rk_ e) <*> (w_rk m)
   , w_coloops = pure (\rk_ -> D.coloops rk_ e) <*> (w_rk m)
+  , w_restriction = w_restriction m -- (M|X0)|X1 = M|X1 whenever defined.
 } where e = x0 `S.intersection` (w_groundset m)
         intersectWithE = pure (\f -> \x -> e `S.intersection` f x)
 
@@ -139,9 +140,44 @@ a_namedContraction name m x0 = wrappedMatroid {
   , w_loops = pure (\cl_ -> (cl_ t) `S.intersection` e)                     <*> (w_cl m)
   , w_coRk =  pure (\rk_ -> D.coRk rk_ e) <*> new_rk
   , w_coloops = pure (S.intersection e) <*> (w_coloops m)
+  , w_contraction = w_contraction m -- (M.X0).X1 = M.X1 whenever defined.
 } where e = x0 `S.intersection` (w_groundset m)
         t = (w_groundset m) `S.difference` e -- deleted edges
         bt = w_basis m <*> pure t -- maybe the basis of deleted edges
         rt = w_rk m <*> pure t -- maybe the rank of t
         new_rk = pure (\rk_ -> \rt_ -> \x -> rk_ (x `S.union` t) - rt_ ) <*> (w_rk m)    <*> rt
         new_indep = pure (\indep_ -> \bt_ -> \x -> indep_ (x `S.union` bt_))  <*> (w_indep m) <*> bt
+
+        
+{- | returns the contraction of a given matroid
+
+  Note that this routine implements the correct routines provided that the prerequisite members
+  in the input matroid are defined. Routines which have missing prerequisite members in the input
+  matroid will be left to Nothing. Data.Matroid.Typeclass.wrapUp fills all AMatroid record members.
+-}
+a_dual :: (Show a, Ord a) => AMatroid a {- ^ input matroid -} -> AMatroid a
+a_dual m  = a_namedDual name m 
+            where name = "dual (" ++ m_name ++ ")"
+                  m_name = maybe "M" id $ w_showName m
+                  
+{- | returns the contraction of a given matroid, named
+
+  Note that this routine implements the correct routines provided that the prerequisite members
+  in the input matroid are defined. Routines which have missing prerequisite members in the input
+  matroid will be left to Nothing. Data.Matroid.Typeclass.wrapUp fills all AMatroid record members.
+-}
+a_namedDual :: Ord a => String {- ^ name -} -> AMatroid a {- ^ input matroid -} -> AMatroid a
+a_namedDual name m = wrappedMatroid {
+    w_groundset = e
+  , w_showName = Just name
+  , w_rk = new_rk
+  , w_indep = new_indep
+  , w_basis = pure (\indep_ -> D.basis indep_) <*> new_indep
+  , w_cl =    pure (\rk_ -> D.cl rk_ e) <*> new_rk
+  , w_loops = w_coloops m
+  , w_coRk = w_rk m
+  , w_coloops = w_loops m
+  , w_dual = Just m -- bounce back to the original matroid
+} where e = (w_groundset m)
+        new_rk = (w_coRk m) `mplus` (pure (\rk_ -> D.coRk rk_ e) <*> w_rk m)
+        new_indep = pure (\rk_ -> D.indep rk_) <*> new_rk

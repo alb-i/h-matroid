@@ -153,17 +153,9 @@ instance (Ord a, Show a) => Matroid AMatroid a where
   cl m = defaultsTo w_cl m                      $ D.cl (rk m) (groundset m)
   {--- II. ---}
   abstract m = defaultsTo w_abstract m          $ m -- it has been wrapped before
-  dual m = defaultsTo w_dual   m                $ undefined
-  restriction m x = (defaultsTo w_restriction m $ a_namedRestriction new_name m   
-                    ) x
-           where new_name = "(" ++ (showName m) 
-                   ++ ") `restriction` (" 
-                   ++ (show x) ++ ")"
-  contraction m x = (defaultsTo w_contraction m $ a_namedContraction new_name m   
-                  ) x
-           where new_name = "(" ++ (showName m) 
-                   ++ ") `contraction` (" 
-                   ++ (show x) ++ ")"
+  dual m = defaultsTo w_dual   m                $ a_dual m
+  restriction m = defaultsTo w_restriction m    $ a_restriction m    
+  contraction m = defaultsTo w_contraction m    $ a_contraction m   
   {--- III. ---}
   loops m = defaultsTo w_loops m                $ D.loops (cl m)
   coRk m = defaultsTo w_coRk m                  $ D.coRk (rk m) (groundset m)
