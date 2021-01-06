@@ -116,7 +116,6 @@ Download and extract the sources to a directory of your liking. Then run
 ```
 stack haddock --open .
 ```
-Or: browse the 
 
 ## Contributing
 
