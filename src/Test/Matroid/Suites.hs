@@ -222,7 +222,7 @@ opInvariantsSuite genMatroids = context "op invariants" $ do
       in return $ coloops mr == coloops mc
 
 
-      {- | test suite for rank axioms 
+{- | test suite for rank axioms 
 
  The following properties are verified:
   -  rk is monotone increasing

@@ -65,7 +65,7 @@ viaIndep g = do
                     m_ <- g
                     return $ fromIndep (groundset m_) (indep m_)
 
-                    -- | a generator for consintency matroid type based on another generator
+-- | a generator for consintency matroid type based on another generator
 viaBasisFilter :: Matroid m a => Gen (m a) -> Gen (BasisFilterMatroid a)
 viaBasisFilter g = do
                     m_ <- g
