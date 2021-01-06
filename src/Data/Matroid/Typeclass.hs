@@ -16,12 +16,11 @@ This module provides the Matroid typeclass.
 module Data.Matroid.Typeclass where
   
 import Data.Matroid.Ops
-import qualified Data.Matroid.Ops
 
 import qualified Data.Matroid.Typeclass.Defaults as D
     
 import Data.Set (Set)
-import qualified Data.Set as S
+-- import qualified Data.Set as S
 
 import Data.Matroid.Internal.Helpers
     
