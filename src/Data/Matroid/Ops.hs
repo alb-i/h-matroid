@@ -33,6 +33,7 @@ import qualified Data.Set as S
 data AMatroid a = WMatroid {
   {--- I. ---}
     w_groundset :: Set a 
+  , w_showName :: Maybe (String)
   , w_rk :: Maybe (Set a -> Int)
   , w_indep :: Maybe (Set a -> Bool)
   , w_basis :: Maybe (Set a -> Set a)
@@ -45,12 +46,20 @@ data AMatroid a = WMatroid {
   {--- III. ---}
   ,  w_loops ::  Maybe (Set a)
   ,  w_coRk :: Maybe (Set a -> Int)
-  ,  w_coloops ::  Maybe (Set a)   
+  ,  w_coloops ::  Maybe (Set a)
 }
+
+instance Show a => Show (AMatroid a) where
+  show x = maybe defShow id $ w_showName x
+    where defShow = "WMatroid (" ++ show (w_groundset x) ++ ") (...)"
+    
+
+
 -- | defaults for WMatroid
 wrappedMatroid = WMatroid {
   {--- I. ---}
     w_groundset = S.empty
+  , w_showName = Nothing
   , w_rk = Nothing
   , w_indep = Nothing
   , w_basis = Nothing
