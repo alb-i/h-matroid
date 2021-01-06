@@ -30,7 +30,7 @@ module Data.Matroid.Typeclass (
   , wrapUp
 ) where
   
---import Data.Matroid.Ops.Unary.Internal
+import Data.Matroid.Ops
 
 import qualified Data.Matroid.Typeclass.Defaults as D
     
@@ -46,6 +46,10 @@ import qualified Data.Set as S
     In this typeclass, we assume that every set of matroid elements
     passed to any of the routines is actually a subset of (groundset m).
     Behaviour for other sets shall be considered undefined.
+    
+    In order to keep things DRY, the default implementations are fumbled through
+    the (AMatroid a) instance definition below through wrapUp and setting the
+    corresponding record value to Nothing.
      
 -}
 class Ord a => Matroid m a 
@@ -63,13 +67,13 @@ class Ord a => Matroid m a
     rk :: m a -- ^ the matroid 
       -> Set a -- ^ set of matroid elements
       -> Int
-    rk m = D.rk (basis m)
+    rk m = rk (abstract m)
     
     -- | tests whether a given set is independent
     indep :: m a -- ^ the matroid 
       -> Set a -- ^ set of matroid elements
       -> Bool
-    indep m = D.indep (rk m)
+    indep m = indep (abstract m)
     
     -- | obtains an independent subset with maximal cardinality
     basis :: m a -- ^ the matroid
@@ -87,9 +91,13 @@ class Ord a => Matroid m a
              but you probably want to roll your own,
              in order to improve performance ---}
              
-    -- | returns this matroid as the result of the unary identity operation on matroids
+    -- | returns this matroid as abstract matroid object
     abstract :: m a {- ^ matroid -} -> AMatroid a
     abstract m = wrapUp m
+    
+    -- | returns the dual of this matroid as abstract matroid object
+    dual :: m a {- ^ matroid -} -> AMatroid a
+    dual m = undefined
              
     -- | returns the restricted matroid M|X as result of the unary matroid operation *|X
     restriction :: m a {- ^ the matroid -} -> Set a {- ^ restricts the ground set to this set-}
@@ -116,49 +124,49 @@ class Ord a => Matroid m a
     coloops :: m a {- ^ the matroid -} -> Set a
     coloops m = D.coloops (rk m) (groundset m)
 
--- | abstract matroid data type with elements of a given type; its purpose is to hide the underlying type from the type system.
-data AMatroid a = WrappedMatroid {
-  {--- I. ---}
-     
-    
-    w_groundset :: Set a 
-  , w_rk :: Set a -> Int
-  , w_indep :: Set a -> Bool
-  , w_basis :: Set a -> Set a
-  , w_cl :: Set a -> Set a
-  {--- II. ---}
-  
-  {--- III. ---}
-  ,  w_loops ::  Set a
-  ,  w_coRk :: Set a -> Int
-  ,  w_coloops ::  Set a   
-}
-
 -- | takes an object of a type that implements the Matroid typeclass, and turns it into an AMatroid record.
 wrapUp :: Matroid m a => m a -> AMatroid a
-wrapUp m = WrappedMatroid{ w_groundset = groundset m
-                         , w_rk = rk m
-                         , w_indep = indep m
-                         , w_basis = basis m
-                         , w_cl = cl m
-                         , w_loops = loops m
-                         , w_coRk = coRk m
-                         , w_coloops = coloops m
-                         }
+wrapUp m = wrappedMatroid {
+  {--- I. ---}  
+    w_groundset = groundset m
+  , w_rk = Just $ rk m
+  , w_indep = Just $ indep m
+  , w_basis = Just $ basis m
+  , w_cl = Just $ cl m
+  {--- II. ---}
+  , w_abstract = Nothing
+  , w_dual = Just $ dual m
+  , w_restriction = Just $ restriction m
+  , w_contraction = Just $ contraction m
+  {--- III. ---}
+  , w_loops = Just $ loops m
+  , w_coRk = Just $ coRk m
+  , w_coloops = Just $ coloops m
+  }
                 
 instance Show a => Show (AMatroid a) where
   show x = "wrapUp (" ++ show (w_groundset x) ++ ") (...)"
-  
+
+-- | little helper that either chooses the implementation of a typeclass member from the record, or uses the default implementation
+defaultsTo :: (AMatroid a -> Maybe a1) {- ^ record getter function -} 
+            -> AMatroid a {- ^ the matroid -}           
+            -> (a1) {- ^ default implementation of the typeclass member -}
+            -> a1
+defaultsTo w_op m defImp = maybe defImp id $ w_op m
+
 instance Ord a => Matroid AMatroid a where
   {--- I. ---}
   groundset = w_groundset
-  rk = w_rk
-  indep = w_indep
-  basis = w_basis
-  cl = w_cl
+  rk m = defaultsTo w_rk m $ D.rk (basis m)
+  indep m = defaultsTo w_indep m $ D.indep (rk m)
+  basis m = defaultsTo w_basis m $ D.basis (indep m)
+  cl m = defaultsTo w_cl m $ D.cl (rk m) (groundset m)
   {--- II. ---}
-  abstract = id -- it has been wrapped before
+  abstract m = defaultsTo w_abstract m $ m -- it has been wrapped before
+  dual m = defaultsTo w_dual m $ undefined
+  restriction m = defaultsTo w_restriction m $ undefined
+  contraction m = defaultsTo w_contraction m $ undefined
   {--- III. ---}
-  loops = w_loops
-  coRk = w_coRk
-  coloops = w_coloops
+  loops m = defaultsTo w_loops m $ D.loops (cl m)
+  coRk m = defaultsTo w_coRk m $ D.coRk (rk m) (groundset m)
+  coloops m = defaultsTo w_coloops m $ D.coloops (rk m) (groundset m)

@@ -17,10 +17,8 @@ restriction.
 
 module Data.Matroid.Ops.Unary
   ( 
-    UnaryDerivedMatroid
+    --RestrictedMatroid
   ) where 
-
-import Data.Matroid.Ops.Unary.Internal
   
 import Data.Set (Set)
 import qualified Data.Set as S
@@ -30,13 +28,23 @@ import qualified Data.Map as M
 
 import Data.Matroid.Typeclass
 import qualified Data.Matroid.Typeclass.Defaults as D
+{-
+data RestrictedMatroid m a = RMatroid (m a) {- ^ original matroid -} (Set a) {- ^ restriction of the ground set -}
 
-instance (Show (m a), Show a) => Show (UnaryDerivedMatroid m a) where
-  show (IdMatroid m) = "mopInject (" ++ show m ++ ")"
-  show (RestrictedMatroid m e) = "( " ++ show m ++ " `restriction` " ++ show e ++")"
-  show (ContractedMatroid m e _ _ _) = "( " ++ show m ++ " `contraction` " ++ show e ++ ")"
+instance Matroid m a => Matroid (RestrictedMatroid m) a where
+  groundset (RMatroid _ e) = e
+  rk (RMatroid m _) = rk m
+  indep (RMatroid m _) = indep m
+  basis (RMatroid m _) = basis m
+  cl (RMatroid m e) = (S.intersection e) . cl m
+  loops (RMatroid m e) = S.intersection e $ loops m
+  coRk (RMatroid m e) x = D.coRk (rk m) e x
+  coloops (RMatroid m e) = D.coloops (rk m) e
   
-  
+instance Show a, Show m a => Show (RestrictedMatroid m a) where
+  show (RMatroid m e) = "(" ++ show m ++ ") `restriction` (" ++ show e ++ ")"
+-}
+{-
 {--- This is a little bit of tedious busywork, if there's a better way, let me know! ---}
 instance (Matroid m a) => Matroid (UnaryDerivedMatroid m) a where
   {--- I. ---}
@@ -75,3 +83,4 @@ instance (Matroid m a) => Matroid (UnaryDerivedMatroid m) a where
   
   coloops (IdMatroid m) = coloops m
   coloops (RestrictedMatroid m e) = D.coloops (rk m) e
+-}
