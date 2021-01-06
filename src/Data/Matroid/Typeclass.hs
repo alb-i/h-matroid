@@ -144,20 +144,27 @@ wrapUp m = wrappedMatroid {
 
 -- | This instance contains the default implementations of the members of the Matroid typeclass.
 instance (Ord a, Show a) => Matroid AMatroid a where
-  {--- I. ---}
+  {--- I. ---}                              --   vv. default Matroid implementations go here .vv
   groundset = w_groundset
-  showName m = defaultsTo w_showName m       $ "Matroid instance"
-  rk m = defaultsTo w_rk m                   $ D.rk (basis m)
-  indep m = defaultsTo w_indep m             $ D.indep (rk m)
-  basis m = defaultsTo w_basis m             $ D.basis (indep m)
-  cl m = defaultsTo w_cl m                   $ D.cl (rk m) (groundset m)
+  showName m = defaultsTo w_showName m          $ "Matroid instance"
+  rk m = defaultsTo w_rk m                      $ D.rk (basis m)
+  indep m = defaultsTo w_indep m                $ D.indep (rk m)
+  basis m = defaultsTo w_basis m                $ D.basis (indep m)
+  cl m = defaultsTo w_cl m                      $ D.cl (rk m) (groundset m)
   {--- II. ---}
-  abstract m = defaultsTo w_abstract m       $ m -- it has been wrapped before
-  dual m = defaultsTo w_dual m               $ undefined
-  restriction m x = (defaultsTo w_restriction m $ a_namedRestriction new_name m) x
-           where new_name = "(" ++ (showName m) ++ ") `restriction` (" ++ (show x) ++ ")"
-  contraction m = defaultsTo w_contraction m $ undefined
+  abstract m = defaultsTo w_abstract m          $ m -- it has been wrapped before
+  dual m = defaultsTo w_dual   m                $ undefined
+  restriction m x = (defaultsTo w_restriction m $ a_namedRestriction new_name m   
+                    ) x
+           where new_name = "(" ++ (showName m) 
+                   ++ ") `restriction` (" 
+                   ++ (show x) ++ ")"
+  contraction m x = (defaultsTo w_contraction m $ a_namedContraction new_name m   
+                  ) x
+           where new_name = "(" ++ (showName m) 
+                   ++ ") `contraction` (" 
+                   ++ (show x) ++ ")"
   {--- III. ---}
-  loops m = defaultsTo w_loops m             $ D.loops (cl m)
-  coRk m = defaultsTo w_coRk m               $ D.coRk (rk m) (groundset m)
-  coloops m = defaultsTo w_coloops m         $ D.coloops (rk m) (groundset m)
+  loops m = defaultsTo w_loops m                $ D.loops (cl m)
+  coRk m = defaultsTo w_coRk m                  $ D.coRk (rk m) (groundset m)
+  coloops m = defaultsTo w_coloops m            $ D.coloops (rk m) (groundset m)

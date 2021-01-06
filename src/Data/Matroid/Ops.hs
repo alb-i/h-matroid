@@ -109,3 +109,39 @@ a_namedRestriction name m x0 = wrappedMatroid {
   , w_coloops = pure (\rk_ -> D.coloops rk_ e) <*> (w_rk m)
 } where e = x0 `S.intersection` (w_groundset m)
         intersectWithE = pure (\f -> \x -> e `S.intersection` f x)
+
+{- | returns the contraction of a given matroid
+
+  Note that this routine implements the correct routines provided that the prerequisite members
+  in the input matroid are defined. Routines which have missing prerequisite members in the input
+  matroid will be left to Nothing. Data.Matroid.Typeclass.wrapUp fills all AMatroid record members.
+-}
+a_contraction :: (Show a, Ord a) => AMatroid a {- ^ input matroid -} -> Set a {- ^ contract the ground set onto this set -} -> AMatroid a
+a_contraction m x0 = a_namedContraction name m x0
+            where e = x0 `S.intersection` (w_groundset m)
+                  name = "(" ++ m_name ++ ") `contraction` (" ++ show e ++ ")"
+                  m_name = maybe "M" id $ w_showName m
+                  
+{- | returns the contraction of a given matroid, named
+
+  Note that this routine implements the correct routines provided that the prerequisite members
+  in the input matroid are defined. Routines which have missing prerequisite members in the input
+  matroid will be left to Nothing. Data.Matroid.Typeclass.wrapUp fills all AMatroid record members.
+-}
+a_namedContraction :: Ord a => String {- ^ name -} -> AMatroid a {- ^ input matroid -} -> Set a {- ^ contract the ground set onto this set -} -> AMatroid a
+a_namedContraction name m x0 = wrappedMatroid {
+    w_groundset = e
+  , w_showName = Just name
+  , w_rk =    new_rk
+  , w_indep = new_indep
+  , w_basis = pure (\indep_ -> D.basis indep_) <*> new_indep
+  , w_cl =    pure (\cl_ -> \x -> (cl_ (x `S.union` t)) `S.intersection` e) <*> (w_cl m)
+  , w_loops = pure (\cl_ -> (cl_ t) `S.intersection` e)                     <*> (w_cl m)
+  , w_coRk =  pure (\rk_ -> D.coRk rk_ e) <*> new_rk
+  , w_coloops = pure (S.intersection e) <*> (w_coloops m)
+} where e = x0 `S.intersection` (w_groundset m)
+        t = (w_groundset m) `S.difference` e -- deleted edges
+        bt = w_basis m <*> pure t -- maybe the basis of deleted edges
+        rt = w_rk m <*> pure t -- maybe the rank of t
+        new_rk = pure (\rk_ -> \rt_ -> \x -> rk_ (x `S.union` t) - rt_ ) <*> (w_rk m)    <*> rt
+        new_indep = pure (\indep_ -> \bt_ -> \x -> indep_ (x `S.union` bt_))  <*> (w_indep m) <*> bt

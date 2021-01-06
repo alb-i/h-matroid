@@ -58,19 +58,19 @@ genFreeMatroids = do n <- chooseInt (0,10) --(arbitrary :: Gen Int) `suchThat` (
 viaRank :: Matroid m a => Gen (m a) -> Gen (RkMatroid a)
 viaRank g = do
                     m_ <- g
-                    return $ namedFromRk ("viaRk $ " ++ showName m_) (groundset m_) (rk m_)
+                    return $ fromRk (groundset m_) (rk m_)
                     
 -- | a generator for consintency matroid type based on another generator
 viaIndep :: Matroid m a => Gen (m a) -> Gen (IndepMatroid a)
 viaIndep g = do
                     m_ <- g
-                    return $ namedFromIndep ("viaRk $ " ++ showName m_) (groundset m_) (indep m_)
+                    return $ fromIndep (groundset m_) (indep m_)
 
                     -- | a generator for consintency matroid type based on another generator
 viaBasisFilter :: Matroid m a => Gen (m a) -> Gen (BasisFilterMatroid a)
 viaBasisFilter g = do
                     m_ <- g
-                    return $ namedFromBasisFilter ("viaBasisFilter $ " ++ showName m_) (groundset m_) (basis m_)
+                    return $ fromBasisFilter (groundset m_) (basis m_)
 
 -- | a generator for matroids of the form M|X based on a generator for M
 viaRestriction :: Matroid m a => Gen (m a) -> Gen (AMatroid a)
@@ -79,3 +79,11 @@ viaRestriction g = do
                     e0 <- sublistOf $ S.toList $ groundset m_
                     let e = S.fromList e0
                      in return $ m_ `restriction` e
+
+-- | a generator for matroids of the form M.X based on a generator for M
+viaContraction :: Matroid m a => Gen (m a) -> Gen (AMatroid a)
+viaContraction g = do
+                    m_ <- g
+                    e0 <- sublistOf $ S.toList $ groundset m_
+                    let e = S.fromList e0
+                     in return $ m_ `contraction` e
