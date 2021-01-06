@@ -47,5 +47,4 @@ Test-Suite spec
 
 Source-Repository head
   Type:                 git
-  Location:             
-    git: https://github.com/alb-i/h-matroid/
+  Location:             https://github.com/alb-i/h-matroid/
