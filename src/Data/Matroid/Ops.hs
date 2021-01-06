@@ -58,6 +58,7 @@ instance Show a => Show (AMatroid a) where
 
 
 -- | defaults for WMatroid
+wrappedMatroid :: AMatroid a
 wrappedMatroid = WMatroid {
   {--- I. ---}
     w_groundset = S.empty

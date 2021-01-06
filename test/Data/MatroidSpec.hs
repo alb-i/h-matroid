@@ -6,16 +6,10 @@ import Test.Hspec
 import Test.QuickCheck
 
 import Data.Matroid
-import Data.Matroid.Uniform
-import Data.Matroid.Internal (RkMatroid, BasisFilterMatroid, IndepMatroid)
 
 import Test.Matroid
-import Test.Matroid.Helpers
 
 import Control.Exception (evaluate)
-
-import Data.Set (Set)
-import qualified Data.Set as S
                     
 
 
@@ -45,11 +39,13 @@ test_eq_ord g = do
       
 
 -- | matroid + Show test
+matroid_suite ::  (Matroid m a, Show (m a)) => Gen (m a) -> SpecWith ()
 matroid_suite g = do
   matroidSuite g
   test_show_nonempty g
          
 -- | matroid + Eq/Ord sanity tests
+matroid_suite_eq_ord ::  (Matroid m a, Ord (m a), Show (m a)) => Gen (m a) -> SpecWith ()
 matroid_suite_eq_ord g = do
   matroid_suite g
   test_eq_ord g

@@ -14,7 +14,6 @@ This module contains hspec test suites that check certain matroid properties.
 
 module Test.Matroid.Suites where
     
-import Test.Matroid.Generators
 import Test.Matroid.Helpers
 import Test.QuickCheck
 import Test.Hspec
@@ -22,7 +21,6 @@ import Test.Hspec
 import Data.Matroid
 
 
-import Data.Set (Set)
 import qualified Data.Set as S
 
 -- | all tests that any matroid should/must pass
@@ -118,8 +116,8 @@ opInvariantsSuite genMatroids = context "op invariants" $ do
         y = S.fromList y0
         m1 = dual (m `restriction` x)
         m2 = (dual m) `contraction` x
-        b1 = basis m1 x
-        b2 = basis m2 x
+        b1 = basis m1 y
+        b2 = basis m2 y
         c1b1 = cl m1 b1
         c1b2 = cl m1 b2
         c2b1 = cl m2 b1
@@ -183,8 +181,8 @@ opInvariantsSuite genMatroids = context "op invariants" $ do
         y = S.fromList y0
         m1 = (m `restriction` x)
         m2 = dual $ (dual m) `contraction` x
-        b1 = basis m1 x
-        b2 = basis m2 x
+        b1 = basis m1 y
+        b2 = basis m2 y
         c1b1 = cl m1 b1
         c1b2 = cl m1 b2
         c2b1 = cl m2 b1
@@ -368,13 +366,6 @@ viaConsistencySuite genMatroids = context "implementation consistency" $ do
   let via_rk m_ = namedFromRk ("via_rk $ " ++ showName m_) (groundset m_) (rk m_)
       via_indep m_ = namedFromIndep ("via_indep $ " ++ showName m_) (groundset m_) (indep m_)
       via_basis m_ = namedFromBasisFilter ("via_basis $ " ++ showName m_) (groundset m_) (basis m_)
-      check_eq via_x fn1 fn2 = -- fn1 and fn2 are the same function but wrt. different types
-       property $ do 
-        m1 <- genMatroids
-        x0 <- sublistOf $ S.toList $ groundset m1
-        let m2 = via_x m1
-            x = S.fromList x0
-          in return $ fn1 m1 x == fn2 m2 x
       check_eq via_x fn1 fn2 = -- fn1 and fn2 are the same function but wrt. different types
        property $ do 
         m1 <- genMatroids

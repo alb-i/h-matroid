@@ -19,7 +19,6 @@ import Data.Matroid.Internal
 import Test.QuickCheck
 
 
-import Data.Set (Set)
 import qualified Data.Set as S
 
 

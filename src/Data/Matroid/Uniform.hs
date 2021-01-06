@@ -26,7 +26,6 @@ import Data.Set (Set)
 import qualified Data.Set as S
 
 import Data.Matroid.Typeclass
-import Data.Matroid.Internal
 
 -- | data type representing a uniform matroid over a given ground set
 data UniformMatroid a = U -- ^ uniform matroid constructor

@@ -35,7 +35,6 @@ module Data.Matroid.Internal
 
 import Data.Matroid.Typeclass 
 import Data.Set (Set)
-import qualified Data.Set as S
 
 -- | we use this data type to combine a given rank function with the default implementations from the Matroid typeclass
 data RkMatroid a = RkM -- ^ matroid from rank function constructor
