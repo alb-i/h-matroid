@@ -79,3 +79,6 @@ spec = do
     describe "Data.Matroid.fromBasisFilter" $ do matroid_suite $ viaBasisFilter genUniformMatroids
                                                  matroid_suite $ viaBasisFilter genGraphicMatroids
                                                  matroid_suite $ viaBasisFilter genMKnMatroids
+    describe "Data.Matroid.Typeset.restriction" $ do matroid_suite $ viaRestriction genUniformMatroids
+                                                     matroid_suite $ viaRestriction genGraphicMatroids
+                                                     matroid_suite $ viaRestriction genMKnMatroids

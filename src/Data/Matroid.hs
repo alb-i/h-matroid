@@ -23,8 +23,11 @@ module Data.Matroid
   , module Data.Matroid.Graphic
   , module Data.Matroid.Ops
   , fromRk
+  , namedFromRk
   , fromIndep
+  , namedFromIndep
   , fromBasisFilter
+  , namedFromBasisFilter
   ) where
   
 import Data.Matroid.Typeclass

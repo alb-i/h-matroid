@@ -15,6 +15,8 @@ This module provides internal helpers for the matroid package which fall into th
 module Data.Matroid.Internal.Helpers where
 
 
+import Control.Monad
+
 
 -- | little helper that either chooses the implementation of a typeclass member from the record, or uses the default implementation
 defaultsTo :: (a0 -> Maybe a1) {- ^ record getter function -} 

@@ -16,6 +16,8 @@ This module provides implementations of graphic matroids.
 module Data.Matroid.Graphic
   ( GraphicMatroid
   , fromGraph
+  , namedFromGraph
+  , fromGraph'
   , mK
   ) where 
 
@@ -101,7 +103,7 @@ insertEdgeOrGetCycleComponent (F n c t) e (u,v) -- e is a non-loop edge
                  udef = uc /= Nothing
                  vdef = vc /= Nothing
 
-instance (Ord a, Ord v) => Matroid (GraphicMatroid v) a where
+instance (Ord a, Ord v, Show a) => Matroid (GraphicMatroid v) a where
     groundset (MG _ e _) = e
     showName (MG name _ _) = name
     -- | A set of edges of G=(V,E) is independent, if it contains no cycle. 
@@ -145,7 +147,15 @@ fromGraph :: (Ord a, Show a) => Set a -- ^ set of edges of the (multi-)graph
                    -> GraphicMatroid v a
 fromGraph e = namedFromGraph ("fromGraph (" ++ show e ++ ") (incidence)") e
 
--- | constructs a GraphicMatroid from a set of (abstract) edges and the incident-vertex map
+-- | constructs an unnamed GraphicMatroid from a set of (abstract) edges and the incident-vertex map
+fromGraph' :: (Ord a) => Set a -- ^ set of edges of the (multi-)graph
+                   -> (a -> (v,v))
+                   {- ^ map that maps the edge e to the set of its incident vertices {u,v}; 
+                        the order is ignored, and {v} is represented by (v,v) -}
+                   -> GraphicMatroid v a
+fromGraph' = namedFromGraph "M(G)"
+
+-- | constructs a named GraphicMatroid from a set of (abstract) edges and the incident-vertex map
 namedFromGraph :: Ord a => 
                       String
                    -- ^ name of the matroid  

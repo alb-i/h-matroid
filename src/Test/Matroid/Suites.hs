@@ -176,9 +176,9 @@ clPropertiesSuite genMatroids = context "cl properties" $ do
 -}
 viaConsistencySuite :: Matroid m a => Gen (m a) {- ^ matroid test case generator -} -> SpecWith ()
 viaConsistencySuite genMatroids = context "implementation consistency" $ do
-  let via_rk m_ = fromRk (groundset m_) (rk m_)
-      via_indep m_ = fromIndep (groundset m_) (indep m_)
-      via_basis m_ = fromBasisFilter (groundset m_) (basis m_)
+  let via_rk m_ = namedFromRk ("via_rk $ " ++ showName m_) (groundset m_) (rk m_)
+      via_indep m_ = namedFromIndep ("via_indep $ " ++ showName m_) (groundset m_) (indep m_)
+      via_basis m_ = namedFromBasisFilter ("via_basis $ " ++ showName m_) (groundset m_) (basis m_)
       check_eq via_x fn1 fn2 = -- fn1 and fn2 are the same function but wrt. different types
        property $ do 
         m1 <- genMatroids

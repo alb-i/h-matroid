@@ -22,8 +22,15 @@ open door policy for code.
 -}
 module Data.Matroid.Internal
     (
-        fromRk, fromIndep, fromBasisFilter,
-        RkMatroid, IndepMatroid, BasisFilterMatroid
+        fromRk
+      , namedFromRk
+      , fromIndep
+      , namedFromIndep
+      , fromBasisFilter
+      , namedFromBasisFilter
+      , RkMatroid
+      , IndepMatroid
+      , BasisFilterMatroid
     ) where
 
 import Data.Matroid.Typeclass 
@@ -32,53 +39,72 @@ import qualified Data.Set as S
 
 -- | we use this data type to combine a given rank function with the default implementations from the Matroid typeclass
 data RkMatroid a = RkM -- ^ matroid from rank function constructor
+                   String -- ^ name
                    (Set a) -- ^ ground set of the matroid
                    (Set a -> Int) -- ^ rank function
             
                    
 instance Show a => Show (RkMatroid a) where
-    show (RkM g _) = "fromRk (" ++ (show g) ++ ") (rk)"
+    show (RkM name _ _) = name 
     
-instance Ord a => Matroid RkMatroid a where
-    groundset (RkM e _) = e
-    rk (RkM _ r) = r
+instance (Ord a, Show a) => Matroid RkMatroid a where
+    groundset (RkM _ e _) = e
+    showName (RkM name _ _) = name
+    rk (RkM _ _ r) = r
 
 -- | matroid constructor given groundset and rank function
-fromRk :: (Set a) {- ^ ground set -} -> (Set a -> Int) {- ^ rank function -} -> (RkMatroid a)
-fromRk = RkM
+fromRk :: (Show a) => (Set a) {- ^ ground set -} -> (Set a -> Int) {- ^ rank function -} -> (RkMatroid a)
+fromRk g = namedFromRk ("fromRk (" ++ (show g) ++ ") (rk)") g
+
+-- | named matroid constructor given groundset and rank function
+namedFromRk :: String {- ^ name -} -> (Set a) {- ^ ground set -} -> (Set a -> Int) {- ^ rank function -} -> (RkMatroid a)
+namedFromRk = RkM 
+
 
 
 -- | we use this data type to combine a given independence test with the default implementations from the Matroid typeclass
 data IndepMatroid a = IndepM -- ^ matroid from independence-test constructor
+                   String -- ^ name
                    (Set a) -- ^ ground set of the matroid
                    (Set a ->  Bool) -- ^ independence test function
             
                    
 instance Show a => Show (IndepMatroid a) where
-    show (IndepM g _) = "fromIndep (" ++ (show g) ++ ") (indep)"
+    show (IndepM name _ _) = name
     
-instance Ord a => Matroid IndepMatroid a where
-    groundset (IndepM e _) = e
-    indep (IndepM _ i) = i
+instance (Ord a, Show a) => Matroid IndepMatroid a where
+    groundset (IndepM _ e _) = e
+    showName (IndepM name _ _) = name
+    indep (IndepM _ _ i) = i
     
 -- | matroid constructor given groundset and test for independence
-fromIndep :: (Set a) {- ^ ground set -} -> (Set a -> Bool) {- ^ independence test -} -> (IndepMatroid a)
-fromIndep = IndepM
+fromIndep :: (Show a) => (Set a) {- ^ ground set -} -> (Set a -> Bool) {- ^ independence test -} -> (IndepMatroid a)
+fromIndep g = namedFromIndep ("fromIndep (" ++ (show g) ++ ") (indep)") g 
+
+-- | named matroid constructor given groundset and test for independence
+namedFromIndep :: String  {- ^ name -} -> (Set a) {- ^ ground set -} -> (Set a -> Bool) {- ^ independence test -} -> (IndepMatroid a)
+namedFromIndep = IndepM
 
 
 -- | we use this data type to combine a given a basis filter with the default implementations from the Matroid typeclass
 data BasisFilterMatroid a = BasisM -- ^ matroid from basis-filter constructor
+                   String -- ^ name
                    (Set a) -- ^ ground set of the matroid
                    (Set a -> Set a) -- ^ function that returns a maximal independent subset of its input
             
                    
 instance Show a => Show (BasisFilterMatroid a) where
-    show (BasisM g _) = "fromBasis (" ++ (show g) ++ ") (basis)"
+    show (BasisM name _ _) = name 
     
-instance Ord a => Matroid BasisFilterMatroid a where
-    groundset (BasisM e _) = e
-    basis (BasisM _ b) = b
+instance (Ord a,Show a) => Matroid BasisFilterMatroid a where
+    groundset (BasisM _ e _) = e
+    showName (BasisM name _ _) = name
+    basis (BasisM _ _ b) = b
     
 -- | matroid constructor given groundset and set-basis filter
-fromBasisFilter :: (Set a) {- ^ ground set -} -> (Set a -> Set a) {- ^ returns maximal independent subset -} -> (BasisFilterMatroid a)
-fromBasisFilter = BasisM
+fromBasisFilter :: (Show a) => (Set a) {- ^ ground set -} -> (Set a -> Set a) {- ^ returns maximal independent subset -} -> (BasisFilterMatroid a)
+fromBasisFilter g = namedFromBasisFilter ("fromBasis (" ++ (show g) ++ ") (basis)") g
+
+-- | named matroid constructor given groundset and set-basis filter
+namedFromBasisFilter :: String {- ^ name -} -> (Set a) {- ^ ground set -} -> (Set a -> Set a) {- ^ returns maximal independent subset -} -> (BasisFilterMatroid a)
+namedFromBasisFilter = BasisM

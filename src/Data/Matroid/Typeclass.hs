@@ -16,6 +16,7 @@ This module provides the Matroid typeclass.
 module Data.Matroid.Typeclass where
   
 import Data.Matroid.Ops
+import qualified Data.Matroid.Ops
 
 import qualified Data.Matroid.Typeclass.Defaults as D
     
@@ -39,7 +40,7 @@ import Data.Matroid.Internal.Helpers
     corresponding record value to Nothing.
      
 -}
-class Ord a => Matroid m a 
+class (Ord a, Show a) => Matroid m a 
     where
     
     {--- I. The routines in this section are worth to look at in 
@@ -143,7 +144,7 @@ wrapUp m = wrappedMatroid {
 
 
 -- | This instance contains the default implementations of the members of the Matroid typeclass.
-instance Ord a => Matroid AMatroid a where
+instance (Ord a, Show a) => Matroid AMatroid a where
   {--- I. ---}
   groundset = w_groundset
   showName m = defaultsTo w_showName m       $ "Matroid instance"
@@ -154,7 +155,8 @@ instance Ord a => Matroid AMatroid a where
   {--- II. ---}
   abstract m = defaultsTo w_abstract m       $ m -- it has been wrapped before
   dual m = defaultsTo w_dual m               $ undefined
-  restriction m = defaultsTo w_restriction m $ undefined
+  restriction m x = (defaultsTo w_restriction m $ a_namedRestriction new_name m) x
+           where new_name = "(" ++ (showName m) ++ ") `restriction` (" ++ (show x) ++ ")"
   contraction m = defaultsTo w_contraction m $ undefined
   {--- III. ---}
   loops m = defaultsTo w_loops m             $ D.loops (cl m)

@@ -37,7 +37,7 @@ data UniformMatroid a = U -- ^ uniform matroid constructor
 instance Show a => Show (UniformMatroid a) where
   show (U e r) = "uniformOn (" ++ show e ++ ") " ++ show r
                     
-instance Ord a => Matroid UniformMatroid a where
+instance (Ord a, Show a) => Matroid UniformMatroid a where
     groundset (U e _) = e
     rk (U _ r) x = min r $ length x 
     indep (U _ r) x = length x <= r 
@@ -70,7 +70,7 @@ uniformOn e r
 data FreeMatroid a = Free (Set a) -- ^ ground set
                    deriving (Eq, Ord)
                    
-instance Ord a => Matroid FreeMatroid a where
+instance (Ord a, Show a) => Matroid FreeMatroid a where
   groundset (Free e) = e
   rk _ = length
   indep _ _ = True
