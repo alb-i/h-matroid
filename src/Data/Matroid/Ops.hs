@@ -27,8 +27,8 @@ import Control.Monad
 {- | abstract matroid data type with elements of a given type
 
   Its purpose is to hide the underlying type from the type system.
-  The records resemble the typeclass Matroid, where everything except for the
-  groundset has been placed inside the Maybe-Monad. A value of Nothing
+  The records resemble the typeclass @Matroid@, where everything except for the
+  groundset has been placed inside the @Maybe@-Monad. A value of @Nothing@
   indicates that the default implementation of the typeclass should be used.
   
 -}
@@ -57,7 +57,7 @@ instance Show a => Show (AMatroid a) where
     
 
 
--- | defaults for WMatroid
+-- | defaults for @WMatroid@
 wrappedMatroid :: AMatroid a
 wrappedMatroid = WMatroid {
   {--- I. ---}
@@ -83,7 +83,7 @@ wrappedMatroid = WMatroid {
 
   Note that this routine implements the correct routines provided that the prerequisite members
   in the input matroid are defined. Routines which have missing prerequisite members in the input
-  matroid will be left to Nothing. Data.Matroid.Typeclass.wrapUp fills all AMatroid record members.
+  matroid will be left to @Nothing@. @Data.Matroid.Typeclass.wrapUp@ fills all @AMatroid@ record members.
 -}
 a_restriction :: (Show a, Ord a) => AMatroid a {- ^ input matroid -} -> Set a {- ^ restriction of ground set -} -> AMatroid a
 a_restriction m x0 = a_namedRestriction name m x0
@@ -95,7 +95,7 @@ a_restriction m x0 = a_namedRestriction name m x0
 
   Note that this routine implements the correct routines provided that the prerequisite members
   in the input matroid are defined. Routines which have missing prerequisite members in the input
-  matroid will be left to Nothing. Data.Matroid.Typeclass.wrapUp fills all AMatroid record members.
+  matroid will be left to @Nothing@. @Data.Matroid.Typeclass.wrapUp@ fills all @AMatroid@ record members.
 -}
 a_namedRestriction :: Ord a => String {- ^ name -} -> AMatroid a {- ^ input matroid -} -> Set a {- ^ restriction of ground set -} -> AMatroid a
 a_namedRestriction name m x0 = wrappedMatroid {
@@ -116,7 +116,7 @@ a_namedRestriction name m x0 = wrappedMatroid {
 
   Note that this routine implements the correct routines provided that the prerequisite members
   in the input matroid are defined. Routines which have missing prerequisite members in the input
-  matroid will be left to Nothing. Data.Matroid.Typeclass.wrapUp fills all AMatroid record members.
+  matroid will be left to @Nothing@. @Data.Matroid.Typeclass.wrapUp@ fills all @AMatroid@ record members.
 -}
 a_contraction :: (Show a, Ord a) => AMatroid a {- ^ input matroid -} -> Set a {- ^ contract the ground set onto this set -} -> AMatroid a
 a_contraction m x0 = a_namedContraction name m x0
@@ -128,7 +128,7 @@ a_contraction m x0 = a_namedContraction name m x0
 
   Note that this routine implements the correct routines provided that the prerequisite members
   in the input matroid are defined. Routines which have missing prerequisite members in the input
-  matroid will be left to Nothing. Data.Matroid.Typeclass.wrapUp fills all AMatroid record members.
+  matroid will be left to @Nothing@. @Data.Matroid.Typeclass.wrapUp@ fills all @AMatroid@ record members.
 -}
 a_namedContraction :: Ord a => String {- ^ name -} -> AMatroid a {- ^ input matroid -} -> Set a {- ^ contract the ground set onto this set -} -> AMatroid a
 a_namedContraction name m x0 = wrappedMatroid {
@@ -154,7 +154,7 @@ a_namedContraction name m x0 = wrappedMatroid {
 
   Note that this routine implements the correct routines provided that the prerequisite members
   in the input matroid are defined. Routines which have missing prerequisite members in the input
-  matroid will be left to Nothing. Data.Matroid.Typeclass.wrapUp fills all AMatroid record members.
+  matroid will be left to @Nothing@. @Data.Matroid.Typeclass.wrapUp@ fills all @AMatroid@ record members.
 -}
 a_dual :: (Show a, Ord a) => AMatroid a {- ^ input matroid -} -> AMatroid a
 a_dual m  = a_namedDual name m 
@@ -165,7 +165,7 @@ a_dual m  = a_namedDual name m
 
   Note that this routine implements the correct routines provided that the prerequisite members
   in the input matroid are defined. Routines which have missing prerequisite members in the input
-  matroid will be left to Nothing. Data.Matroid.Typeclass.wrapUp fills all AMatroid record members.
+  matroid will be left to @Nothing@. @Data.Matroid.Typeclass.wrapUp@ fills all @AMatroid@ record members.
 -}
 a_namedDual :: Ord a => String {- ^ name -} -> AMatroid a {- ^ input matroid -} -> AMatroid a
 a_namedDual name m = wrappedMatroid {

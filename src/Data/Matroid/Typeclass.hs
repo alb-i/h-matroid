@@ -28,22 +28,22 @@ import Data.Matroid.Internal.Helpers
     Typeclass that provides the full matroid interface.
     
     The type parameter @a@ is the type of the elements of the matroid,
-    it is most commonly used in a @Set a@ type.
+    it is most commonly used in a @(Set a)@ type.
     
     In this typeclass, we assume that every set of matroid elements
-    passed to any of the routines is actually a subset of (groundset m).
+    passed to any of the routines is actually a subset of @(groundset m)@.
     Behaviour for other sets shall be considered undefined.
     
     In order to keep things DRY, the default implementations are fumbled through
-    the (AMatroid a) instance definition below through wrapUp and setting the
-    corresponding record value to Nothing.
+    the @(AMatroid a)@ instance definition below through @wrapUp@ and setting the
+    corresponding record value to @Nothing@.
      
 -}
 class (Ord a, Show a) => Matroid m a 
     where
     
     {--- I. The routines in this section are worth to look at in 
-            your implementation of a Matroid instance ---}
+            your implementation of a @Matroid@ instance ---}
             
     {-# MINIMAL groundset, (rk | indep | basis) #-}
     
@@ -66,7 +66,14 @@ class (Ord a, Show a) => Matroid m a
       -> Bool
     indep m = indep (abstract m) { w_indep = Nothing }
     
-    -- | obtains an independent subset with maximal cardinality
+    {- | obtains an independent subset of the input subset, which has maximal cardinality among all such subsets.
+    
+      Please note that this routine returns a basis of the input subset wrt. the matroid, which is not necessarily
+      also a basis of the matroid itself. You can obtain at least one basis of the matroid via
+      
+        > basis m $ groundset m
+      
+    -}
     basis :: m a -- ^ the matroid
       -> Set a -- ^ set of matroid elements
       -> Set a
@@ -101,7 +108,7 @@ class (Ord a, Show a) => Matroid m a
     contraction m  = contraction (abstract m) { w_contraction = Nothing }
     
     {--- III. There is generally less to gain from implementing the following 
-              routines in your own Matroid instances. ---}
+              routines in your own @Matroid@ instances. ---}
     
     -- | returns the loops in the matroid
     loops :: m a {- ^ the matroid -} -> Set a
@@ -116,7 +123,7 @@ class (Ord a, Show a) => Matroid m a
     coloops m = coloops (abstract m) { w_coloops = Nothing }
 
 
--- | takes an object of a type that implements the Matroid typeclass, and turns it into an AMatroid record.
+-- | takes an object of a type that implements the @Matroid@ typeclass, and turns it into an @AMatroid@ record.
 wrapUp :: (Matroid m a) => m a -> AMatroid a
 wrapUp m = wrappedMatroid {
   {--- I. ---}  
@@ -142,9 +149,9 @@ wrapUp m = wrappedMatroid {
   
 
 
--- | This instance contains the default implementations of the members of the Matroid typeclass.
+-- | This instance contains the default implementations of the members of the @Matroid@ typeclass.
 instance (Ord a, Show a) => Matroid AMatroid a where
-  {--- I. ---}                              --   vv. default Matroid implementations go here .vv
+  {--- I. ---}                              --   vv. default @Matroid@ implementations go here .vv
   groundset = w_groundset
   showName m = defaultsTo w_showName m          $ "Matroid instance"
   rk m = defaultsTo w_rk m                      $ D.rk (basis m)
