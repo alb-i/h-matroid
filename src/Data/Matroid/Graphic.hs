@@ -55,8 +55,8 @@ emptyForrest = F 1 M.empty M.empty
 
 {- | Takes a forrest and tries to add another edge to it.
 
- If possible (@Right@), then it returns the forrest with the edge added 
- otherwise (@Left@) returns the component with a cycle after adding e.
+ If possible ('Right'), then it returns the forrest with the edge added 
+ otherwise ('Left') returns the component with a cycle after adding e.
  Please note that for a result Left x, the set x contains a cycle, but it
  is not necessarily a cycle itself. (It's a cycle with trees on it)
 -}
@@ -139,7 +139,7 @@ instance (Ord a, Ord v, Show a) => Matroid (GraphicMatroid v) a where
                                  single_component = uc == vc && (uc /= Nothing)
                              in loop || single_component
 
--- | constructs a @GraphicMatroid@ from a set of (abstract) edges and the incident-vertex map
+-- | constructs a 'GraphicMatroid' from a set of (abstract) edges and the incident-vertex map
 fromGraph :: (Ord a, Show a) => Set a -- ^ set of edges of the (multi-)graph
                    -> (a -> (v,v))
                    {- ^ map that maps the edge e to the set of its incident vertices {u,v}; 
@@ -147,7 +147,7 @@ fromGraph :: (Ord a, Show a) => Set a -- ^ set of edges of the (multi-)graph
                    -> GraphicMatroid v a
 fromGraph e = namedFromGraph ("fromGraph (" ++ show e ++ ") (incidence)") e
 
--- | constructs an unnamed @GraphicMatroid@ from a set of (abstract) edges and the incident-vertex map
+-- | constructs an unnamed 'GraphicMatroid' from a set of (abstract) edges and the incident-vertex map
 fromGraph' :: (Ord a) => Set a -- ^ set of edges of the (multi-)graph
                    -> (a -> (v,v))
                    {- ^ map that maps the edge e to the set of its incident vertices {u,v}; 
@@ -155,7 +155,7 @@ fromGraph' :: (Ord a) => Set a -- ^ set of edges of the (multi-)graph
                    -> GraphicMatroid v a
 fromGraph' = namedFromGraph "M(G)"
 
--- | constructs a named @GraphicMatroid@ from a set of (abstract) edges and the incident-vertex map
+-- | constructs a named 'GraphicMatroid' from a set of (abstract) edges and the incident-vertex map
 namedFromGraph :: Ord a => 
                       String
                    -- ^ name of the matroid  
