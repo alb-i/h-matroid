@@ -21,6 +21,7 @@ Library
                       , Data.Matroid.Typeclass.Defaults
                       , Data.Matroid.Internal
                       , Data.Matroid.Internal.Helpers
+                      , Data.Matroid.Graphic.Internal
                       , Data.Matroid.Graphic
                       , Data.Matroid.Ops
                       , Test.Matroid
