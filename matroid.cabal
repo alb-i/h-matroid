@@ -23,6 +23,8 @@ Library
                       , Data.Matroid.Internal.Helpers
                       , Data.Matroid.Graphic.Internal
                       , Data.Matroid.Graphic
+                      , Data.Matroid.Algorithms
+                      , Data.Matroid.Algorithms.Greedy
                       , Data.Matroid.Ops
                       , Test.Matroid
                       , Test.Matroid.Helpers
