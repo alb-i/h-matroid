@@ -9,7 +9,7 @@ Description:            This library provides typeclasses, instances, and algori
 Category:               Combinatorics, Optimization, Mathematics
 Cabal-Version:          >= 1.10
 Build-Type:             Simple
-Extra-Source-Files:     README.md, ChangeLog.md, test/Data/*.hs, stack.yaml, stack.yaml.lock
+Extra-Source-Files:     README.md, ChangeLog.md, CodingStandards.md, Backlog.md, test/Data/*.hs, stack.yaml, stack.yaml.lock
 
 Library
   Default-Language:     Haskell2010
