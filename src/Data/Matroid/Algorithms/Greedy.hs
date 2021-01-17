@@ -38,3 +38,24 @@ greedy = greedyStep S.empty
           | otherwise   = greedyStep x0  m rs  -- we cannot add r to x0, do not add it and continue
             where x0r = S.insert r x0 
         greedyStep x0 _ _ = x0 -- no more profitable elements in the queue
+
+{- |  Obtains an independent set of the given matroid
+      that is optimal wrt. some optimization problem.
+      
+      This version uses a choice function that selects the best
+      element from a list of allowed choices, or Nothing to stop
+      the process.
+-}
+greedy1 :: Matroid m a =>
+      (m a) {- ^ matroid to optimize on -} 
+   -> (Set a -> Maybe a) {- ^ picks the best element from the set, or nothing if adding an element would result in a worse outcome -}
+   -> Set a
+greedy1 m choice = greedyStep S.empty $ loops m
+  where e = groundset m
+        greedyStep x0 clx0
+          | chosen == Nothing = x0     -- cannot add any further element
+          | otherwise = greedyStep x0c clx0c -- add the best choice;
+            where chosen = choice (S.difference e clx0)
+                  Just c = chosen
+                  x0c = S.insert c x0
+                  clx0c = cl m $ S.insert c clx0
