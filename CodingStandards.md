@@ -38,3 +38,27 @@ the library could use default implementations of the notions from other axiom sy
 having to implement the operations needed for an axiom system of their liking. On the other hand, supporting all axiom systems takes too much resources.
 Therefore, we currently support default definitions for the
 typeclass members whenever either the rank function, an independence test, or a (flat) basis filter has been implemented.
+
+We chose to fuse the default implementation of the `Matroid` typeclass functions into the abstract matroid type `AMatroid`, which comes in handy whenever we do no longer care about where the matroid is from, and also as the type that the canonical matroid constructions produce.
+The `AMatroid` type is a record that allows to either store thunks to typeclass functions operation on a given matroid object or to defer to the default implementation of the underlying function with respect to the `Matroid` typeclass. This allows for all kinds of ad-hoc manipulation of matroids (a.k.a. constructions), as well as quick and dirty ways to test your implementation of a function against the default for performance and correctness (this especially goes both ways). Unfortunately, this comes at a price of higher manual maintenance. (There might be better ways to achieve something similar, if you know one, please reach out!)
+
+### Adding a New Function To The `Matroid` Typeclass
+
+Assume that we would like to add the function `f :: (m a) -> x` to the `Matroid m a` typeclass, including a default implementation in terms of other typeclass functions.
+We have to do the following steps:
+
+- We have to add a member field `w_f :: Maybe (x)` to the `WMatroid` record definition of the `AMatroid` data type that resides in `Data.Matroid.Ops` module.
+- We have to update the `wrappedMatroid` record in `Data.Matroid.Ops` with the initialization `w_f = Nothing`.
+- We have to add the member `f :: (m a) -> x` to the `Matroid m a` typeclass in the `Data.Matroid.Typclass` module and bounce its default implementation back to `AMatroid`:
+```
+     {- | This is the new matroid function -}
+     f :: (m a) {- ^ the matroid -} -> x
+     f m = f (abstract m) { w_f = Nothing }
+```
+- We have to fill the `w_f` member in the `wrapUp` function in `Data.Matroid.Typeclass` with the corresponding thunk by adding `w_f = Just $ f m`.
+- We have to provide the default implementation of `f` in the `Matroid AMatroid a` instance definition in `Data.Matroid.Typeclass`, which shall be used whenever `w_f == Nothing` with:
+```
+f m = defaultsTo w_f m $ {- ... -}
+```
+
+where `{- ... -}` corresponds to the default implementation, which should be a new function in `Data.Matroid.Typeclass.Defaults`.
