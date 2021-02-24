@@ -21,3 +21,4 @@ module Test.Matroid (
     
 import Test.Matroid.Generators
 import Test.Matroid.Suites
+import Test.Matroid.Algorithms.Suites
