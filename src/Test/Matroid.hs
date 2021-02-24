@@ -17,6 +17,7 @@ It is also used in the unit tests of the matroid library.
 module Test.Matroid (
         module Test.Matroid.Generators
     ,   module Test.Matroid.Suites
+    ,   module Test.Matroid.Algorithms.Suites
 ) where
     
 import Test.Matroid.Generators
