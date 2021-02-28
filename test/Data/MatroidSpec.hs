@@ -57,6 +57,11 @@ main = hspec spec
 -- | all the tests
 spec :: Spec
 spec = do
+    describe "Data.Matroid.Algorithms.Greedy" $ do 
+       greedyOptimizationTestSuite $ genSmallGraphicMatroids
+       greedyOptimizationTestSuite $ genSmallUniformMatroids
+       greedyOptimizationTestSuite $ genMKnMatroids
+       greedyOptimizationTestSuite $ genFreeMatroids
     describe "Data.Matroid.Uniform.uniform" $ do
         matroid_suite_eq_ord genUniformMatroids
         it "wrong arguments should produce errors" $ do

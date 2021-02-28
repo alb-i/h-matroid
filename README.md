@@ -68,9 +68,9 @@ are bounced back to ```AMatroid a``` where they are defined.
 Writing a new ```Matroid m a``` instance is quite simple: you have to implement the ```groundset :: (m a) -> Set a``` routine
 which returns the set of all elements of your matroid, and at least one of the following methods:
 
-a) ```rk :: (m a) -> Set a -> Int``` which should return the rank of a set of matroid elements,
-b) ```indep :: (m a) -> Set a -> Bool``` which should determine whether a set of matroid elements is independent,
-c) ```basis :: (m a) -> Set a -> Set a``` which should determine an independent subset with maximal cardinality.
+- a) ```rk :: (m a) -> Set a -> Int``` which should return the rank of a set of matroid elements,
+- b) ```indep :: (m a) -> Set a -> Bool``` which should determine whether a set of matroid elements is independent,
+- c) ```basis :: (m a) -> Set a -> Set a``` which should determine an independent subset with maximal cardinality.
 
 Once you have done this, all the other methods are provided by the library. It is advisable to also use one or more
 of the test suites provided in the ```Test.Matroid``` module to verify that your implementation is indeed a matroid.
@@ -120,3 +120,5 @@ stack haddock --open .
 ## Contributing
 
 Upload your changes and create a pull request on the [github repo](https://github.com/alb-i/h-matroid).
+There is a [document describing (best) practices](CodingStandards.md) to be used in this project. There
+is also a [backlog](Backlog.md).
