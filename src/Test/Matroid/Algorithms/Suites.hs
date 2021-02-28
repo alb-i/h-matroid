@@ -22,7 +22,6 @@ import Data.Matroid.Algorithms.Greedy
 import qualified Data.Set as S
 import qualified Data.List as L
 
-import Test.Matroid.Helpers
 import Test.QuickCheck
 import Test.Hspec
 
@@ -39,3 +38,19 @@ greedyOptimizationTestSuite genMatroids = context "greedy algorithm" $ do
           bases = enumerateBases m
           not_better_than_optimal s = (&&) $ (get_cost s) >= optimal_cost 
         in return $ foldr not_better_than_optimal ((indep m optimal) && (rk m optimal == rk m (groundset m))) bases
+    it "Algorithms.greedy1 gives optimal basis" $ property $ do
+          m <- genMatroids
+          e <- shuffle $ S.toList $ groundset m
+          let cost x = maybe ((length e) + 1) id $ L.elemIndex x e
+              selector s = selector0 s e
+              selector0 _ [] = Nothing
+              selector0 s (x:ex) 
+                      | S.member x s = Just x
+                      | otherwise    = selector0 s ex
+              optimal = greedy1 m selector
+              get_cost s = S.foldr add_cost 0 s
+              add_cost x c0 = c0 + (cost x)
+              optimal_cost = get_cost optimal
+              bases = enumerateBases m
+              not_better_than_optimal s = (&&) $ (get_cost s) >= optimal_cost 
+            in return $ foldr not_better_than_optimal ((indep m optimal) && (rk m optimal == rk m (groundset m))) bases
