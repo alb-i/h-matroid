@@ -9,14 +9,6 @@ known as matroids.
 {-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
 ```
 
-## Installation
-
-Download and extract the sources to a directory of your liking. Then run
-```
-cabal install --lib matroid
-```
-
-
 ## Usage
 
 ### Quick demo

@@ -27,6 +27,9 @@ Library
                       , Data.Matroid.Algorithms.Greedy
                       , Data.Matroid.Algorithms.Enumerate
                       , Data.Matroid.Ops
+                      , Data.Fields
+                      , Data.Fields.Typeclass
+                      , Data.Fields.Zp
                       , Test.Matroid
                       , Test.Matroid.Helpers
                       , Test.Matroid.Generators
