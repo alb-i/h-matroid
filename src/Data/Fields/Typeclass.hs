@@ -21,6 +21,7 @@ module Data.Fields.Typeclass where
 -}
 
 class (Ord f, Show f) => Field f where
+    {-# MINIMAL zeroF, unitF, invF, negF, addF, mulF #-}
     -- | the zero element of the field
     zeroF :: f
     -- | the unit element of the field
@@ -33,6 +34,16 @@ class (Ord f, Show f) => Field f where
     mulF :: f -> f -> f
     -- | adds two elements of the field
     addF :: f -> f -> f
+    -- | subtracts the second argument from the first in the field
+    subF :: f -> f -> f
+    subF x = (addF x) . negF
+    -- | tests whether a given element equals zero, override this if your field does not use canonical representants
+    isZeroF :: f {- ^ element to test for zero -} -> Bool
+    isZeroF = (==) zeroF
+    -- | tests whether two given elements are equal
+    eqF :: f {- ^ element to check -} -> f {- ^ element to check against -} -> Bool
+    eqF = \x -> \y -> isZeroF $ subF x y
+    
 
 {-| The standard rational numbers are a field.
 -}

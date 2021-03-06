@@ -5,6 +5,7 @@ import Data.Fields.Zp
 import Control.DeepSeq
 import System.Environment
 
+
 run_test :: String -> IO ()
 run_test "strict" = do    
     let measureExpression = map (invModPstrict 141650939) [1..100000000]
@@ -14,9 +15,8 @@ run_test "lazy" = do
      in measureExpression `deepseq` putStrLn "lazy invModP done."
 run_test "matroid" = do
         let measureExpression = map (invModP 141650939) [1..100000000]
-         in measureExpression `deepseq` putStrLn "lazy invModP done."
-        
-
+         in measureExpression `deepseq` putStrLn "matroid-lib invModP done."
+  
 main :: IO ()
 main = do
     [x] <- getArgs

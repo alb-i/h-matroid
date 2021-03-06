@@ -9,7 +9,7 @@ Description:            This library provides typeclasses, instances, and algori
 Category:               Combinatorics, Optimization, Mathematics
 Cabal-Version:          >= 1.10
 Build-Type:             Simple
-Extra-Source-Files:     README.md, ChangeLog.md, CodingStandards.md, Backlog.md, test/Data/*.hs, stack.yaml, stack.yaml.lock
+Extra-Source-Files:     README.md, ChangeLog.md, CodingStandards.md, Backlog.md, test/Data/*.hs, test/*.hs, stack.yaml, stack.yaml.lock
 
 Library
   Default-Language:     Haskell2010
@@ -31,6 +31,7 @@ Library
                       , Data.Fields.Typeclass
                       , Data.Fields.Zp
                       , Test.Matroid
+                      , Test.Fields
                       , Test.Matroid.Helpers
                       , Test.Matroid.Generators
                       , Test.Matroid.Suites
@@ -39,6 +40,7 @@ Library
                       , containers >= 0.6.2 && < 0.7
                       , hspec >= 2.7.5 && < 2.8
                       , QuickCheck >= 2.14.2 && < 2.15
+                      , primes>=0.2.1.0
 
 Test-Suite spec
   Type:                 exitcode-stdio-1.0
