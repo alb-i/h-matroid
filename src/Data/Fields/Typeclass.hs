@@ -22,6 +22,10 @@ module Data.Fields.Typeclass where
 
 class (Ord f, Show f) => Field f where
     {-# MINIMAL zeroF, unitF, invF, negF, addF, mulF #-}
+    infixl 7 `mulF`
+    infixl 7 `divF`
+    infixl 6 `addF`
+    infixl 6 `subF`
     -- | the zero element of the field
     zeroF :: f
     -- | the unit element of the field
