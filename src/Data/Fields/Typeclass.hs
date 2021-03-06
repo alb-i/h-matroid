@@ -26,6 +26,7 @@ class (Ord f, Show f) => Field f where
     infixl 7 `divF`
     infixl 6 `addF`
     infixl 6 `subF`
+    infixl 4 `eqF`
     -- | the zero element of the field
     zeroF :: f
     -- | the unit element of the field
@@ -49,7 +50,7 @@ class (Ord f, Show f) => Field f where
     isZeroF = (==) zeroF
     -- | tests whether two given elements are equal
     eqF :: f {- ^ element to check -} -> f {- ^ element to check against -} -> Bool
-    eqF = \x -> \y -> isZeroF $ subF x y
+    eqF x y = isZeroF (x `subF` y)
     
 
 {-| The standard rational numbers are a field.

@@ -26,26 +26,26 @@ fieldPropertiesSuite :: Field f => Gen f {- ^ generator for field elements -} ->
 fieldPropertiesSuite genF = context "field properties" $ do
     it "left unit law" $ property $ do
         x <- genF
-        return $ x `mulF` unitF == x
+        return $ (x `mulF` unitF) `eqF` x
     it "right unit law" $ property $ do
         x <- genF
-        return $ unitF `mulF` x == x
+        return $ (unitF `mulF` x) `eqF` x
     it "left zero law" $ property $ do
         x <- genF
-        return $ x `addF` zeroF == x
+        return $ (x `addF` zeroF) `eqF` x
     it "right zero law" $ property $ do
         x <- genF
-        return $ zeroF `addF` x == x
+        return $ (zeroF `addF` x) `eqF` x
     it "multiplicative associativity" $ property $ do
         x <- genF
         y <- genF
         z <- genF
-        return $ (x `mulF` y) `mulF` z == x `mulF` (y `mulF` z)
+        return $ ((x `mulF` y) `mulF` z) `eqF` (x `mulF` (y `mulF` z))
     it "additive associativity" $ property $ do
         x <- genF
         y <- genF
         z <- genF
-        return $ (x `addF` y) `addF` z == x `addF` (y `addF` z)
+        return $ ((x `addF` y) `addF` z) `eqF` (x `addF` (y `addF` z))
     it "multiplicative left inverse" $ property $ do
         x <- genF
         return $ isZeroF x || unitF `eqF` ((invF x) `mulF` x)

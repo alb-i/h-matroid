@@ -20,6 +20,7 @@ module Data.Fields.Zp (
   , getVal
   , prjModP
   , ratModP
+  , ratModP'
   , isPrime
   , Ratio
   , (%)
@@ -67,26 +68,28 @@ instance Field XModP where
           | p == q && (x+y) < p = XModP p (x+y)
           | p == q = XModP p (x+y-p)
           | otherwise = error "cannot combine elements from different modules!"
-  addF v@(XModP p x) (Rat r) = v `addF` ((XModP p x) `divF` (XModP p y))
+  addF v@(XModP p _) (Rat r) = v `addF` ((XModP p x) `divF` (XModP p y))
                 where x = numerator r
                       y = denominator r
-  addF (Rat r) v@(XModP p x) = ((XModP p x) `divF` (XModP p y)) `addF` v
+  addF (Rat r) v@(XModP p _) = ((XModP p x) `divF` (XModP p y)) `addF` v
                 where x = numerator r
                       y = denominator r
-     
+  
+  mulF (Rat r) (Rat q) = Rat (r * q)
   mulF (XModP p x) (XModP q y)
             | p == q = XModP p ((x * y) `mod` p)
             | otherwise = error "cannot combine elements from different modules!"
-  mulF v@(XModP p x) (Rat r) = v `mulF` ((XModP p x) `divF` (XModP p y))
+  mulF v@(XModP p _) (Rat r) = v `mulF` ((XModP p x) `divF` (XModP p y))
                 where x = numerator r
                       y = denominator r
-  mulF (Rat r) v@(XModP p x) = ((XModP p x) `divF` (XModP p y)) `mulF` v
+  mulF (Rat r) v@(XModP p _) = ((XModP p x) `divF` (XModP p y)) `mulF` v
                 where x = numerator r
                       y = denominator r
   
   isZeroF (XModP _ 0) = True
   isZeroF (XModP _ _) = False
-  isZeroF (Rat r)     = r == (0 % 1)
+  isZeroF (Rat r)     = r == 0
+  
                            
   
 {-| get the modulus m of an element x (mod p)
@@ -115,17 +118,22 @@ prjModP :: Int {- ^ prime number p -} -> (Int -> XModP)
 prjModP p | isPrime p = \x -> XModP p (x `mod` p)
           | otherwise = error "The given modulus p is not a prime!"
           
+-- | convert a (Ratio Int) rational to the proper element of Z\/Zp
 ratModP :: Int {- ^ prime number p -} -> (Ratio Int) -> XModP
 ratModP p r | isPrime p =  (XModP p x) `divF` (XModP p y)
             | otherwise = error "The given modulus p is not a prime!"
             where x = numerator r
                   y = denominator r
+                  
+-- | convert a (Ratio Int) to an element of all Z\/Zp's, i.e. an un-homed rational
+ratModP' :: (Ratio Int) {- ^ un-homed integral element -} -> XModP
+ratModP' r = Rat r
 
 {-| determine the multiplicative inverse in Z\/Zp (of x) -}
 invModP :: Int {- ^ characteristic p -} -> Int {- ^ element to invert, != 0 mod p -} -> Int
 invModP p x = euclidStep p 0 x 1
   where euclidStep r0 t0 !r1 !t1 -- see: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Modular_integers
-           | r1 == 0 && r0 > 1 = error "Input element not invertible!"
+           | r1 == 0 && r0 > 1 = error ("Input element not invertible! " ++ (show x) ++ " (mod " ++ (show p) ++ ")")
            | r1 == 0 && t0 < 0 = t0 + p
            | r1 == 0 = t0
            | otherwise = let (quotient,remainder) = r0 `divMod` r1
