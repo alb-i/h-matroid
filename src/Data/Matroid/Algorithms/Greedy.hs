@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, BangPatterns #-}
 
 {-|
 Module      : Data.Matroid.Algorithms.Greedy
@@ -33,7 +33,7 @@ greedy :: Matroid m a =>
    -> [a]   {- ^ elements of the groundset of the matroid, ordered from the best (most revenue, least cost, ...) element to the worst yet still improving element -}
    -> Set a
 greedy = greedyStep S.empty
-  where greedyStep x0 m (r:rs) -- r gives the most revenue wrt. the elements not in x0
+  where greedyStep !x0 m (r:rs) -- r gives the most revenue wrt. the elements not in x0
           | indep m x0r = greedyStep x0r m rs  -- we may add r to x0 and stay independent, do it
           | otherwise   = greedyStep x0  m rs  -- we cannot add r to x0, do not add it and continue
             where x0r = S.insert r x0 
@@ -52,7 +52,7 @@ greedy1 :: Matroid m a =>
    -> Set a
 greedy1 m choice = greedyStep S.empty $ loops m
   where e = groundset m
-        greedyStep x0 clx0
+        greedyStep !x0 !clx0
           | chosen == Nothing = x0     -- cannot add any further element
           | otherwise = greedyStep x0c clx0c -- add the best choice;
             where chosen = choice (S.difference e clx0)

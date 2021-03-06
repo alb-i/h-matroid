@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, BangPatterns #-}
 
 {-|
 Module      : Data.Matroid.Graphic.Internal
@@ -50,7 +50,7 @@ insertEdgeOrGetCycleComponent :: (Ord v, Ord a) =>
                      -> a {- ^ name of the edge -}
                      -> (v,v) {- ^ incidence tuple of the edge; @(x,x)@ represents a loop around the vertex @x@ -} 
                      -> Either (Set a) (Forrest v a)
-insertEdgeOrGetCycleComponent (F n c t) e (u,v) -- e is a non-loop edge
+insertEdgeOrGetCycleComponent (F !n !c !t) e (u,v) -- e is a non-loop edge
            | u == v =  Left $ S.singleton e -- a loop is a single edge cycle
            | not (udef || vdef) =           -- e is a new single-edge tree component
                                   let n1 = n + 1 

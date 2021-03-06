@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, BangPatterns #-}
 
 {-|
 Module      : Data.Matroid.Algorithms.Enumerate
@@ -25,7 +25,7 @@ import qualified Data.Set as S
 -}
 enumerateBases :: Matroid m a => m a {- ^ matroid -} -> [Set a]
 enumerateBases m = dfs (S.toList $ groundset m) S.empty
-            where dfs es x
+            where dfs es !x
                     | not $ indep m x = []
                     | length x == rankM = [x]
                     | (e:ex) <- es = dfs ex ( S.insert e x) ++ dfs ex x

@@ -1,0 +1,30 @@
+Specified file "README.md" for extra-source-files does not exist
+/Users/immo/github/h-matroid/profiling/invModP/invModP.cabal was modified manually. Ignoring /Users/immo/github/h-matroid/profiling/invModP/package.yaml in favor of the cabal file.
+If you want to use the package.yaml file instead of the cabal file,
+then please delete the cabal file.
+ 160,301,464,808 bytes allocated in the heap
+     431,086,560 bytes copied during GC
+         147,816 bytes maximum residency (2 sample(s))
+          93,848 bytes maximum slop
+               9 MiB total memory in use (0 MB lost due to fragmentation)
+
+                                     Tot time (elapsed)  Avg pause  Max pause
+  Gen  0     153343 colls, 153343 par   31.124s   3.906s     0.0000s    0.0115s
+  Gen  1         2 colls,     1 par    0.001s   0.000s     0.0002s    0.0002s
+
+  Parallel GC work balance: 0.05% (serial 0%, perfect 100%)
+
+  TASKS: 18 (1 bound, 17 peak workers (17 total), using -N8)
+
+  SPARKS: 0 (0 converted, 0 overflowed, 0 dud, 0 GC'd, 0 fizzled)
+
+  INIT    time    0.001s  (  0.003s elapsed)
+  MUT     time   97.142s  ( 88.591s elapsed)
+  GC      time   31.125s  (  3.906s elapsed)
+  EXIT    time    0.001s  (  0.003s elapsed)
+  Total   time  128.268s  ( 92.504s elapsed)
+
+  Alloc rate    1,650,174,659 bytes per MUT second
+
+  Productivity  75.7% of total user, 95.8% of total elapsed
+

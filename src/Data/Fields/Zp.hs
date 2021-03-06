@@ -1,4 +1,4 @@
-{-# LANGUAGE MultiParamTypeClasses,FlexibleInstances #-}
+{-# LANGUAGE MultiParamTypeClasses,FlexibleInstances, BangPatterns #-}
 
 {-|
 Module      : Data.Fields.Zp
@@ -18,7 +18,7 @@ module Data.Fields.Zp where
 {-| determine the multiplicative inverse in Z/Zp (of x) -}
 invModP :: Integer {- ^ characteristic p -} -> Integer {- ^ element to invert, != 0 mod p -} -> Integer
 invModP p x = euclidStep p 0 x 1
-  where euclidStep r0 t0 r1 t1 -- see: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Modular_integers
+  where euclidStep r0 t0 !r1 !t1 -- see: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Modular_integers
            | r1 == 0 && r0 > 1 = error "Input element not invertible!"
            | r1 == 0 && t0 < 0 = t0 + p
            | r1 == 0 = t0

@@ -1,4 +1,4 @@
-{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses #-}
+{-# LANGUAGE FlexibleInstances, MultiParamTypeClasses, BangPatterns #-}
 
 {-|
 Module      : Data.Matroid.Graphic
@@ -49,26 +49,26 @@ instance (Ord a, Ord v, Show a) => Matroid (GraphicMatroid v) a where
     -- | A set of edges of G=(V,E) is independent, if it contains no cycle. 
     indep (MG _ _ inc) x = result
          where (result,_) = S.foldl' step (True, emptyForrest) x
-               step (False, f) _ = (False, f) -- propagate failure
-               step (True, f)  e = maybeContinue f $ insertEdgeOrGetCycleComponent f e $ inc e
+               step (False, !f) _ = (False, f) -- propagate failure
+               step (True, !f)  !e = maybeContinue f $ insertEdgeOrGetCycleComponent f e $ inc e
                maybeContinue f (Left _) = (False, f) -- edge e closes a cycle
                maybeContinue _ (Right f) = (True, f) -- edge e added to the forrest f
     -- | determine a spanning forrest of the vertices incident with the edges x
     basis (MG _ _ inc) x = M.foldl' S.union S.empty component_map
          where F _ _ component_map = S.foldl' step emptyForrest x 
-               step f e = doContinue f $ insertEdgeOrGetCycleComponent f e $ inc e
+               step !f !e = doContinue f $ insertEdgeOrGetCycleComponent f e $ inc e
                doContinue f (Left _) = f -- edge e closes a cycle, continue with previous forrest
                doContinue _ (Right f) = f -- edge e added to the forrest f
     -- | count the size while determining the spanning forrest
     rk (MG _ _ inc) x = result
        where (_,result) = S.foldl' step (emptyForrest, 0) x 
-             step (f,r) e = doContinue f r $ insertEdgeOrGetCycleComponent f e $ inc e
+             step (!f,!r) !e = doContinue f r $ insertEdgeOrGetCycleComponent f e $ inc e
              doContinue f r (Left _) = (f,r) -- edge e closes a cycle, continue with previous forrest
              doContinue _ r (Right f) = (f,r+1) -- edge e added to the forrest f
     -- | determine a spanning forrest of x, then add all elements from e\x that are either loops or stay within a single component
     cl (MG _ e inc) x = x `S.union` cx
          where F _ component_map _ = S.foldl' step emptyForrest x 
-               step f g = doContinue f $ insertEdgeOrGetCycleComponent f g $ inc g
+               step !f !g = doContinue f $ insertEdgeOrGetCycleComponent f g $ inc g
                doContinue f (Left _) = f -- edge e closes a cycle, continue with previous forrest
                doContinue _ (Right f) = f -- edge e added to the forrest f
                cx = S.filter inClosure $ S.difference e x
