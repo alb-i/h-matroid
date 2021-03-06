@@ -58,11 +58,15 @@ fieldPropertiesSuite genF = context "field properties" $ do
     it "additive right inverse" $ property $ do
         x <- genF
         return $ isZeroF $ x `addF` (negF x)
-    it "left distributivity" $ property $ do
+    it "left distributivity" $  property $ do
         x <- genF
         y <- genF
         z <- genF
-        return $ ((x `addF` y) `mulF` z) `eqF` ((x `mulF` z) `addF` (y `mulF` z))
+        let criterion = ((x `addF` y) `mulF` z) `eqF` ((x `mulF` z) `addF` (y `mulF` z))
+            f True = True
+            f False = error ("x = " ++ (show x) ++ " y = " ++ (show y) ++ " z = " ++ (show z) ++ "  L = " ++ show (((x `addF` y) `mulF` z)) ++ "  R = " ++ (show ((x `mulF` z) `addF` (y `mulF` z))))
+        return $ f criterion
+     
     it "right distributivity" $ property $ do
         x <- genF
         y <- genF

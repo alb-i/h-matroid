@@ -46,6 +46,12 @@ import Data.Numbers.Primes (isPrime)
     Furthermore __@x == y@ implies @x \`eqF\` y@__, but not the other way around,
     for instance, the unhomed unit is different from 1 (mod p) wrt. '==' but not
     wrt. 'eqF'.
+    Also, funny stuff happens with 'Ratio Int', for instance:
+    @
+      > ((-346687715 :: Int) % 7116409876) - ((-346687715 :: Int) % 7116409876)
+      0 % (-1)
+    @
+    which is not 0.
 -}
 data XModP = XModP Int {- ^ modulus p of x (mod p) or Nothing if canonical integer -} Int {- ^ value (x) of x (mod p) -}
            | Rat (Ratio Int)
@@ -88,7 +94,7 @@ instance Field XModP where
   
   isZeroF (XModP _ 0) = True
   isZeroF (XModP _ _) = False
-  isZeroF (Rat r)     = r == 0
+  isZeroF (Rat r)     = numerator r == 0
   
                            
   
