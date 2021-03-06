@@ -9,7 +9,7 @@ Maintainer  : mail@immanuel-albrecht.de
 Stability   : experimental
 Portability : POSIX
 
-This module provides the finite fields of the form Z/Zp for a prime p.
+This module provides the finite fields of the form Z\/Zp for a prime p.
 
 -}
 
@@ -26,7 +26,25 @@ import Data.Fields.Typeclass
 
 import Data.Numbers.Primes (isPrime)
 
-{-| data type that represents an element x (mod p) of Z/Zp where p is a prime.
+{-| Data type that represents an element x (mod p) of Z\/Zp where p is a prime.
+
+    __WARNING__
+    This data type may hold elements of different cyclic fields,
+    which is not 100 percent correct with a pure type system in mind,
+    but it also allows us to have a single type for any element of a
+    cyclic prime field. On the downside, we also have to support 0 and 1,
+    which must be the same object for Z\/Zp and Z\/Zp'. This creates elements
+    of this type that have lost the information of their home module,
+    which also creates the necessity to allow at least some sort of arithmetic
+    on these objects.
+    So beware that the __operations will fail__ if you try to use them on elements
+    that live in __different__ modules, or if you try to divide by an __integral__
+    derived from __unitF and zeroF alone__.
+    
+    __Therefore you should always prefer creating 0 and 1 through 'prjModP'.__
+    The unitF and zeroF objects come in handy mostly when checking equalities in unit tests.
+    
+    Furthermore __@x == y@ implies @x \`eqF\` y@__, but not the other way around!
 -}
 data XModP = XModP (Maybe Int) {- ^ modulus p of x (mod p) or Nothing if canonical integer -} Int {- ^ value (x) of x (mod p) -}
            
@@ -42,21 +60,24 @@ instance Field XModP where
   invF (XModP Nothing 1) = XModP Nothing 1
   invF (XModP Nothing _) = error "canonical integral element without modulus cannot be inverted!"
   invF (XModP (Just p) x) = XModP (Just p) (invModP p x)
-  negF (XModP p x) = XModP p (-x)
+  negF (XModP Nothing x) = XModP Nothing (-x)
+  negF (XModP (Just p) x) = XModP (Just p) (p - x)
   addF (XModP p x) (XModP q y) = XModP r s
      where r = combineP p q
            s = s0 r
            s0 Nothing  = x + y -- canonical integral addition
-           s0 (Just m) = let  s0 = x + y
-                              mp x
-                                  | x < m = x
-                                  | otherwise = x - m
-                            in mp s0
+           s0 (Just m) = let  s1 = x + y
+                              mp x0
+                                  | x0 < m = x0
+                                  | otherwise = x0 - m
+                            in mp s1
   mulF (XModP p x) (XModP q y) = XModP r s
      where r = combineP p q
            s = s0 r
            s0 Nothing = x * y
            s0 (Just m)  = (x * y) `mod` m
+  isZeroF (XModP _ 0) = True
+  isZeroF _           = False
                            
   
 {-| determine the combined modulus of two elements -}
@@ -69,25 +90,30 @@ combineP p q | p == q = p
 
 {-| get the modulus m of an element x (mod p)
 -}
-getMod :: XModP {- ^ element of Z/Zp -} -> Int
+getMod :: XModP {- ^ element of Z\/Zp -} -> Int
 getMod (XModP (Just m) _) = m
 getMod (XModP Nothing _) = error "canonical integral element has no modulus attached to it"
 
 {-| get the normalized x of an element x (mod p),
 i.e. x is between 0 and (p-1).
 -}
-getVal :: XModP {- ^ element of Z/Zp -} -> Int
+getVal :: XModP {- ^ element of Z\/Zp -} -> Int
 getVal (XModP _ x) = x
 
-{-| returns the natural projection from Z to Z/Zp for
+{-| returns the natural projection from Z to Z\/Zp for
     a given prime p. 
+    
     This routine checks for primality of p.
+    
+    @
+      prjModP 141650939 :: Int -> XModP
+    @
 -}
 prjModP :: Int {- ^ prime number p -} -> (Int -> XModP)
 prjModP p | isPrime p = \x -> XModP (Just p) (x `mod` p)
           | otherwise = error "The given modulus p is not a prime!"
 
-{-| determine the multiplicative inverse in Z/Zp (of x) -}
+{-| determine the multiplicative inverse in Z\/Zp (of x) -}
 invModP :: Int {- ^ characteristic p -} -> Int {- ^ element to invert, != 0 mod p -} -> Int
 invModP p x = euclidStep p 0 x 1
   where euclidStep r0 t0 !r1 !t1 -- see: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Modular_integers

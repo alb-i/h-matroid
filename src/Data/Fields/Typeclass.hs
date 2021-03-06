@@ -37,6 +37,9 @@ class (Ord f, Show f) => Field f where
     -- | subtracts the second argument from the first in the field
     subF :: f -> f -> f
     subF x = (addF x) . negF
+    -- | divides the first argument by the second in the field
+    divF :: f -> f -> f
+    divF x = (mulF x) . invF
     -- | tests whether a given element equals zero, override this if your field does not use canonical representants
     isZeroF :: f {- ^ element to test for zero -} -> Bool
     isZeroF = (==) zeroF
