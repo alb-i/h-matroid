@@ -34,6 +34,6 @@ spec = do
                                                       b <- chooseInt(1,4000)
                                                       d0 <- chooseInt(1,2)
                                                       let r 1 = prjModP 4001 x
-                                                          r 2 = ratModP 4001 (a % b)
+                                                          r _ = ratModP 4001 (a % b)
                                                       return $ r d0) :: Gen XModP)
     describe "Rational" $ do fieldPropertiesSuite (arbitrary :: Gen Rational)

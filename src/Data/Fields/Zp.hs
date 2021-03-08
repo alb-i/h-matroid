@@ -31,6 +31,19 @@ import Data.Ratio
 
 import Data.Numbers.Primes (isPrime)
 
+{-| This type represents elements of Q that are used to calculate in any Z\/Zp without fixing p.
+    This used to be 'Ratio Int', but its currently implemented in a way that silently
+    goes wrong when the bounded 'Int' type overflows. 'Ratio Int' behaves poorly
+    when the denominator climbs above the square root of 'maxBound :: Int'.
+    
+    @
+    > p = 1 % 3037000500 :: Ratio Int
+    > p - p
+    0 % (-1)
+    @
+ -}
+type RatioInt = Ratio Integer
+
 {-| Data type that represents an element x (mod p) of Z\/Zp where p is a prime.
 
     __WARNING__
@@ -46,15 +59,9 @@ import Data.Numbers.Primes (isPrime)
     Furthermore __@x == y@ implies @x \`eqF\` y@__, but not the other way around,
     for instance, the unhomed unit is different from 1 (mod p) wrt. '==' but not
     wrt. 'eqF'.
-    Also, funny stuff happens with 'Ratio Int', for instance:
-    @
-      > ((-346687715 :: Int) % 7116409876) - ((-346687715 :: Int) % 7116409876)
-      0 % (-1)
-    @
-    which is not 0.
 -}
 data XModP = XModP Int {- ^ modulus p of x (mod p) or Nothing if canonical integer -} Int {- ^ value (x) of x (mod p) -}
-           | Rat (Ratio Int)
+           | Rat RatioInt
            
  deriving (Ord, Eq) -- note that == is not the equality with respect to the field, since (XModP p 0) is different from ZeroModP
  
@@ -75,26 +82,26 @@ instance Field XModP where
           | p == q = XModP p (x+y-p)
           | otherwise = error "cannot combine elements from different modules!"
   addF v@(XModP p _) (Rat r) = v `addF` ((XModP p x) `divF` (XModP p y))
-                where x = numerator r
-                      y = denominator r
+                where x = fromInteger $ numerator r
+                      y = fromInteger $ denominator r
   addF (Rat r) v@(XModP p _) = ((XModP p x) `divF` (XModP p y)) `addF` v
-                where x = numerator r
-                      y = denominator r
+                where x = fromInteger $ numerator r
+                      y = fromInteger $ denominator r
   
   mulF (Rat r) (Rat q) = Rat (r * q)
   mulF (XModP p x) (XModP q y)
             | p == q = XModP p ((x * y) `mod` p)
             | otherwise = error "cannot combine elements from different modules!"
   mulF v@(XModP p _) (Rat r) = v `mulF` ((XModP p x) `divF` (XModP p y))
-                where x = numerator r
-                      y = denominator r
+                where x = fromInteger $ numerator r
+                      y = fromInteger $ denominator r
   mulF (Rat r) v@(XModP p _) = ((XModP p x) `divF` (XModP p y)) `mulF` v
-                where x = numerator r
-                      y = denominator r
+                where x = fromInteger $ numerator r
+                      y = fromInteger $ denominator r
   
   isZeroF (XModP _ 0) = True
   isZeroF (XModP _ _) = False
-  isZeroF (Rat r)     = numerator r == 0
+  isZeroF (Rat r)     = r == 0
   
                            
   
@@ -120,20 +127,21 @@ getVal (Rat _) = error "canonical integral element has no modulus attached to it
       prjModP 141650939 :: Int -> XModP
     @
 -}
-prjModP :: Int {- ^ prime number p -} -> (Int -> XModP)
+prjModP :: Int {- ^ prime number p -} -> Int -> XModP
 prjModP p | isPrime p = \x -> XModP p (x `mod` p)
           | otherwise = error "The given modulus p is not a prime!"
           
--- | convert a (Ratio Int) rational to the proper element of Z\/Zp
-ratModP :: Int {- ^ prime number p -} -> (Ratio Int) -> XModP
+-- | convert a rational to the proper element of Z\/Zp
+ratModP :: Integral r => Int {- ^ prime number p -} -> Ratio r -> XModP
 ratModP p r | isPrime p =  (XModP p x) `divF` (XModP p y)
             | otherwise = error "The given modulus p is not a prime!"
-            where x = numerator r
-                  y = denominator r
+            where x = fromIntegral $ numerator r
+                  y = fromIntegral $ denominator r
                   
--- | convert a (Ratio Int) to an element of all Z\/Zp's, i.e. an un-homed rational
-ratModP' :: (Ratio Int) {- ^ un-homed integral element -} -> XModP
-ratModP' r = Rat r
+-- | convert a rational to an element of all Z\/Zp's, i.e. an un-homed rational
+ratModP' :: Integral r => Ratio r {- ^ integral element -} -> XModP
+ratModP' r = Rat r0
+      where r0 = (fromIntegral $ numerator r) % (fromIntegral $ denominator r)
 
 {-| determine the multiplicative inverse in Z\/Zp (of x) -}
 invModP :: Int {- ^ characteristic p -} -> Int {- ^ element to invert, != 0 mod p -} -> Int
