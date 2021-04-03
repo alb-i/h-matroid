@@ -15,7 +15,7 @@ This module provides the finite fields of the form Z\/Zp for a prime p.
 
 module Data.Fields.Zp (
   invModP
-  , XModP 
+  , XModP
   , getMod
   , getVal
   , prjModP
@@ -25,7 +25,7 @@ module Data.Fields.Zp (
   , Ratio
   , (%)
   ) where
-  
+
 import Data.Fields.Typeclass
 import Data.Ratio
 
@@ -62,13 +62,13 @@ type RatioInt = Ratio Integer
 -}
 data XModP = XModP Int {- ^ modulus p of x (mod p) or Nothing if canonical integer -} Int {- ^ value (x) of x (mod p) -}
            | Rat RatioInt
-           
+
  deriving (Ord, Eq) -- note that == is not the equality with respect to the field, since (XModP p 0) is different from ZeroModP
- 
+
 instance Show XModP where
-  show (XModP p x) = (show x) ++ " (mod " ++ (show p) ++ ")"
-  show (Rat x) = (show x) ++ " (mod p)"
-  
+  show (XModP p x) = show x ++ " (mod " ++ show p ++ ")"
+  show (Rat x) = show x ++ " (mod p)"
+
 instance Field XModP where
   unitF = Rat (1 % 1)
   zeroF = Rat (0 % 1)
@@ -78,33 +78,33 @@ instance Field XModP where
   negF (XModP p x) = XModP p (p - x)
   addF (Rat x) (Rat y) = Rat (x + y)
   addF (XModP p x) (XModP q y)
-          | p == q && (x+y) < p = XModP p (x+y)
+          | p == q && x+y < p = XModP p (x+y)
           | p == q = XModP p (x+y-p)
           | otherwise = error "cannot combine elements from different modules!"
-  addF v@(XModP p _) (Rat r) = v `addF` ((XModP p x) `divF` (XModP p y))
+  addF v@(XModP p _) (Rat r) = v `addF` (XModP p x `divF` XModP p y)
                 where x = fromInteger $ numerator r
                       y = fromInteger $ denominator r
-  addF (Rat r) v@(XModP p _) = ((XModP p x) `divF` (XModP p y)) `addF` v
+  addF (Rat r) v@(XModP p _) = (XModP p x `divF` XModP p y) `addF` v
                 where x = fromInteger $ numerator r
                       y = fromInteger $ denominator r
-  
+
   mulF (Rat r) (Rat q) = Rat (r * q)
   mulF (XModP p x) (XModP q y)
-            | p == q = XModP p ((x * y) `mod` p)
+            | p == q = XModP p (x * y `mod` p)
             | otherwise = error "cannot combine elements from different modules!"
-  mulF v@(XModP p _) (Rat r) = v `mulF` ((XModP p x) `divF` (XModP p y))
+  mulF v@(XModP p _) (Rat r) = v `mulF` (XModP p x `divF` XModP p y)
                 where x = fromInteger $ numerator r
                       y = fromInteger $ denominator r
-  mulF (Rat r) v@(XModP p _) = ((XModP p x) `divF` (XModP p y)) `mulF` v
+  mulF (Rat r) v@(XModP p _) = (XModP p x `divF` XModP p y) `mulF` v
                 where x = fromInteger $ numerator r
                       y = fromInteger $ denominator r
-  
+
   isZeroF (XModP _ 0) = True
   isZeroF (XModP _ _) = False
   isZeroF (Rat r)     = r == 0
-  
-                           
-  
+
+
+
 {-| get the modulus m of an element x (mod p)
 -}
 getMod :: XModP {- ^ element of Z\/Zp -} -> Int
@@ -130,24 +130,24 @@ getVal (Rat _) = error "canonical integral element has no modulus attached to it
 prjModP :: Int {- ^ prime number p -} -> Int -> XModP
 prjModP p | isPrime p = \x -> XModP p (x `mod` p)
           | otherwise = error "The given modulus p is not a prime!"
-          
+
 -- | convert a rational to the proper element of Z\/Zp
 ratModP :: Integral r => Int {- ^ prime number p -} -> Ratio r -> XModP
-ratModP p r | isPrime p =  (XModP p x) `divF` (XModP p y)
+ratModP p r | isPrime p =  XModP p x `divF` XModP p y
             | otherwise = error "The given modulus p is not a prime!"
             where x = fromIntegral $ numerator r
                   y = fromIntegral $ denominator r
-                  
+
 -- | convert a rational to an element of all Z\/Zp's, i.e. an un-homed rational
 ratModP' :: Integral r => Ratio r {- ^ integral element -} -> XModP
 ratModP' r = Rat r0
-      where r0 = (fromIntegral $ numerator r) % (fromIntegral $ denominator r)
+      where r0 = fromIntegral (numerator r) % fromIntegral (denominator r)
 
 {-| determine the multiplicative inverse in Z\/Zp (of x) -}
 invModP :: Int {- ^ characteristic p -} -> Int {- ^ element to invert, != 0 mod p -} -> Int
 invModP p x = euclidStep p 0 x 1
   where euclidStep r0 t0 !r1 !t1 -- see: https://en.wikipedia.org/wiki/Extended_Euclidean_algorithm#Modular_integers
-           | r1 == 0 && r0 > 1 = error ("Input element not invertible! " ++ (show x) ++ " (mod " ++ (show p) ++ ")")
+           | r1 == 0 && r0 > 1 = error ("Input element not invertible! " ++ show x ++ " (mod " ++ show p ++ ")")
            | r1 == 0 && t0 < 0 = t0 + p
            | r1 == 0 = t0
            | otherwise = let (quotient,remainder) = r0 `divMod` r1

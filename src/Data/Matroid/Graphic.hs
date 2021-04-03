@@ -19,7 +19,7 @@ module Data.Matroid.Graphic
   , namedFromGraph
   , fromGraph'
   , mK
-  ) where 
+  ) where
 
 import Data.Set (Set)
 import qualified Data.Set as S
@@ -28,17 +28,18 @@ import qualified Data.Map as M
 
 import Data.Matroid.Typeclass
 import Data.Matroid.Graphic.Internal
+import qualified Data.Maybe
 
 -- | data type representing the cycle matroid (aka. polygon matroid) of a (multi-)graph
-data GraphicMatroid v a = 
+data GraphicMatroid v a =
     MG String
        -- ^ given name of the matroid
-       (Set a) 
+       (Set a)
        -- ^ ground set of M(G) = E for a (multi-)graph G = (V,E)
-       (a -> (v,v)) 
+       (a -> (v,v))
        {- ^ map that maps the edge e to the set of its incident vertices {u,v}; 
             the order is ignored, and {v} is represented by (v,v) -}
-         
+
 
 instance Show a => Show (GraphicMatroid v a) where
     show (MG name _ _) = name
@@ -55,19 +56,19 @@ instance (Ord a, Ord v, Show a) => Matroid (GraphicMatroid v) a where
                maybeContinue _ (Right f) = (True, f) -- edge e added to the forrest f
     -- | determine a spanning forrest of the vertices incident with the edges x
     basis (MG _ _ inc) x = M.foldl' S.union S.empty component_map
-         where F _ _ component_map = S.foldl' step emptyForrest x 
+         where F _ _ component_map = S.foldl' step emptyForrest x
                step !f !e = doContinue f $ insertEdgeOrGetCycleComponent f e $ inc e
                doContinue f (Left _) = f -- edge e closes a cycle, continue with previous forrest
                doContinue _ (Right f) = f -- edge e added to the forrest f
     -- | count the size while determining the spanning forrest
     rk (MG _ _ inc) x = result
-       where (_,result) = S.foldl' step (emptyForrest, 0) x 
+       where (_,result) = S.foldl' step (emptyForrest, 0) x
              step (!f,!r) !e = doContinue f r $ insertEdgeOrGetCycleComponent f e $ inc e
              doContinue f r (Left _) = (f,r) -- edge e closes a cycle, continue with previous forrest
              doContinue _ r (Right f) = (f,r+1) -- edge e added to the forrest f
     -- | determine a spanning forrest of x, then add all elements from e\x that are either loops or stay within a single component
     cl (MG _ e inc) x = x `S.union` cx
-         where F _ component_map _ = S.foldl' step emptyForrest x 
+         where F _ component_map _ = S.foldl' step emptyForrest x
                step !f !g = doContinue f $ insertEdgeOrGetCycleComponent f g $ inc g
                doContinue f (Left _) = f -- edge e closes a cycle, continue with previous forrest
                doContinue _ (Right f) = f -- edge e added to the forrest f
@@ -76,7 +77,7 @@ instance (Ord a, Ord v, Show a) => Matroid (GraphicMatroid v) a where
                                  loop = u == v
                                  uc = M.lookup u component_map
                                  vc = M.lookup v component_map
-                                 single_component = uc == vc && (uc /= Nothing)
+                                 single_component = uc == vc && Data.Maybe.isJust uc
                              in loop || single_component
 
 -- | constructs a 'GraphicMatroid' from a set of (abstract) edges and the incident-vertex map
@@ -96,10 +97,10 @@ fromGraph' :: (Ord a) => Set a -- ^ set of edges of the (multi-)graph
 fromGraph' = namedFromGraph "M(G)"
 
 -- | constructs a named 'GraphicMatroid' from a set of (abstract) edges and the incident-vertex map
-namedFromGraph :: Ord a => 
+namedFromGraph :: Ord a =>
                       String
                    -- ^ name of the matroid  
-                   -> Set a 
+                   -> Set a
                    -- ^ set of edges of the (multi-)graph
                    -> (a -> (v,v))
                    {- ^ map that maps the edge e to the set of its incident vertices {u,v}; 

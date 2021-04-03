@@ -15,7 +15,7 @@ It is also used in the unit tests of the matroid library.
 -}
 
 module Test.Fields where
-    
+
 import Data.Fields
 import Test.QuickCheck
 import Test.Hspec
@@ -48,25 +48,25 @@ fieldPropertiesSuite genF = context "field properties" $ do
         return $ ((x `addF` y) `addF` z) `eqF` (x `addF` (y `addF` z))
     it "multiplicative left inverse" $ property $ do
         x <- genF
-        return $ isZeroF x || unitF `eqF` ((invF x) `mulF` x)
+        return $ isZeroF x || unitF `eqF` (invF x `mulF` x)
     it "multiplicative right inverse" $ property $ do
         x <- genF
-        return $ isZeroF x || unitF `eqF` (x `mulF` (invF x))
+        return $ isZeroF x || unitF `eqF` (x `mulF` invF x)
     it "additive left inverse" $ property $ do
         x <- genF
-        return $ isZeroF $ (negF x) `addF` x
+        return $ isZeroF $ negF x `addF` x
     it "additive right inverse" $ property $ do
         x <- genF
-        return $ isZeroF $ x `addF` (negF x)
+        return $ isZeroF $ x `addF` negF x
     it "left distributivity" $  property $ do
         x <- genF
         y <- genF
         z <- genF
         let criterion = ((x `addF` y) `mulF` z) `eqF` ((x `mulF` z) `addF` (y `mulF` z))
             f True = True
-            f False = error ("x = " ++ (show x) ++ " y = " ++ (show y) ++ " z = " ++ (show z) ++ "  L = " ++ show (((x `addF` y) `mulF` z)) ++ "  R = " ++ (show ((x `mulF` z) `addF` (y `mulF` z))))
+            f False = error ("x = " ++ show x ++ " y = " ++ show y ++ " z = " ++ show z ++ "  L = " ++ show ((x `addF` y) `mulF` z) ++ "  R = " ++ show ((x `mulF` z) `addF` (y `mulF` z)))
         return $ f criterion
-     
+
     it "right distributivity" $ property $ do
         x <- genF
         y <- genF

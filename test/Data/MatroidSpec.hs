@@ -10,71 +10,72 @@ import Data.Matroid
 import Test.Matroid
 
 import Control.Exception (evaluate)
-                    
+
 
 
 -- | tests whether show returns a non-empty string
 test_show_nonempty :: Show a => Gen a -> SpecWith ()
-test_show_nonempty g = 
-  it "show is implemented and non-empty" $ property $ do 
+test_show_nonempty g =
+  it "show is implemented and non-empty" $ property $ do
     x <- g
-    return $ 0 /= (length $ show x)
+    return $ not (null (show x))
 
 -- | tests for sanity of == and <
 test_eq_ord :: (Eq a, Ord a) => Gen a -> SpecWith ()
 test_eq_ord g = do
-    it "== is implemented" $ property $ do 
+    it "== is implemented" $ property $ do
       x <- g
       y <- g
-      
+
       return $ x == y `seq` x == x
-    it "compare is implemented" $ property $ do 
+    it "compare is implemented" $ property $ do
         x <- g
         y <- g
         let cmp = compare x y
             result
                | cmp == EQ = x == y
                | otherwise = x /= y
-         in return $ result
-      
+         in return result
+
 
 -- | matroid + Show test
 matroid_suite ::  (Matroid m a, Show (m a)) => Gen (m a) -> SpecWith ()
 matroid_suite g = do
   matroidSuite g
   test_show_nonempty g
-         
+
 -- | matroid + Eq/Ord sanity tests
 matroid_suite_eq_ord ::  (Matroid m a, Ord (m a), Show (m a)) => Gen (m a) -> SpecWith ()
 matroid_suite_eq_ord g = do
   matroid_suite g
   test_eq_ord g
-  
+
 -- | the main routine
 main :: IO ()
 main = hspec spec
 
--- | all the tests
-spec :: Spec
-spec = do 
+-- | no tests
+spec0 :: Spec
+spec0 =
         describe "disabled" $ do it "pending..." $ do pending
 
-spec2 :: Spec
-spec2 = do
-    describe "Data.Matroid.Algorithms.Greedy" $ do 
-       greedyOptimizationTestSuite $ genSmallGraphicMatroids
-       greedyOptimizationTestSuite $ genSmallUniformMatroids
-       greedyOptimizationTestSuite $ genMKnMatroids
-       greedyOptimizationTestSuite $ genFreeMatroids
+-- | all the tests
+spec :: Spec
+spec = do
+    describe "Data.Matroid.Algorithms.Greedy" $ do
+       greedyOptimizationTestSuite genSmallGraphicMatroids
+       greedyOptimizationTestSuite genSmallUniformMatroids
+       greedyOptimizationTestSuite genMKnMatroids
+       greedyOptimizationTestSuite genFreeMatroids
     describe "Data.Matroid.Uniform.uniform" $ do
         matroid_suite_eq_ord genUniformMatroids
         it "wrong arguments should produce errors" $ do
             evaluate (uniform (-1) 0) `shouldThrow` anyErrorCall
             evaluate (uniform 0 (-1)) `shouldThrow` anyErrorCall
-            evaluate (uniform 0 1) `shouldThrow` anyErrorCall      
+            evaluate (uniform 0 1) `shouldThrow` anyErrorCall
     describe "Data.Matroid.Uniform.freeOn" $ matroid_suite_eq_ord genFreeMatroids
-    describe "Data.Matroid.Graphic.fromGraph" $ matroid_suite $ genGraphicMatroids
-    describe "Data.Matroid.Graphic.mK" $ matroid_suite $ genMKnMatroids
+    describe "Data.Matroid.Graphic.fromGraph" $ matroid_suite genGraphicMatroids
+    describe "Data.Matroid.Graphic.mK" $ matroid_suite genMKnMatroids
     describe "Data.Matroid.fromRk" $ do matroid_suite $ viaRank genUniformMatroids
                                         matroid_suite $ viaRank genGraphicMatroids
                                         matroid_suite $ viaRank genMKnMatroids

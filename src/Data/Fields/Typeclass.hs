@@ -41,17 +41,17 @@ class (Ord f, Show f) => Field f where
     addF :: f -> f -> f
     -- | subtracts the second argument from the first in the field
     subF :: f -> f -> f
-    subF x = (addF x) . negF
+    subF x = addF x . negF
     -- | divides the first argument by the second in the field
     divF :: f -> f -> f
-    divF x = (mulF x) . invF
+    divF x = mulF x . invF
     -- | tests whether a given element equals zero, override this if your field does not use canonical representants
     isZeroF :: f {- ^ element to test for zero -} -> Bool
     isZeroF = (==) zeroF
     -- | tests whether two given elements are equal
     eqF :: f {- ^ element to check -} -> f {- ^ element to check against -} -> Bool
     eqF x y = isZeroF (x `subF` y)
-    
+
 
 {-| The standard rational numbers are a field.
 -}
@@ -59,6 +59,6 @@ instance Field Rational where
     zeroF = toRational (0 :: Integer)
     unitF = toRational (1 :: Integer)
     invF = (/) unitF
-    negF = (-) zeroF 
+    negF = (-) zeroF
     addF = (+)
     mulF = (*)

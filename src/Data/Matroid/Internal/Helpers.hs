@@ -15,9 +15,10 @@ This module provides internal helpers for the matroid package which fall into th
 module Data.Matroid.Internal.Helpers where
 
 
+import qualified Data.Maybe
 -- | little helper that either chooses the implementation of a typeclass member from the record, or uses the default implementation
-defaultsTo :: (a0 -> Maybe a1) {- ^ record getter function -} 
-            -> a0 {- ^ the matroid -}           
-            -> (a1) {- ^ default implementation of the typeclass member -}
+defaultsTo :: (a0 -> Maybe a1) {- ^ record getter function -}
+            -> a0 {- ^ the matroid -}
+            -> a1 {- ^ default implementation of the typeclass member -}
             -> a1
-defaultsTo w_op m defImp = maybe defImp id $ w_op m
+defaultsTo w_op m defImp = Data.Maybe.fromMaybe defImp $ w_op m

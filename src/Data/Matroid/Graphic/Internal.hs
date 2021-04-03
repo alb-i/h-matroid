@@ -23,11 +23,12 @@ module Data.Matroid.Graphic.Internal where
 
 import Data.Set (Set)
 import qualified Data.Set as S
-    
+
 
 import Data.Map (Map)
 import qualified Data.Map as M
-            
+import qualified Data.Maybe
+
 -- | data type to keep track of forrests in a (multi-)graph
 data Forrest v a = F Int {- ^ fresh component id counter -}
                      (Map v Int) {- ^ tracks which vertex belongs to which component -}
@@ -45,15 +46,15 @@ emptyForrest = F 1 M.empty M.empty
  Please note that for a result @Left x@, the set @x@ contains a cycle, but it
  is not necessarily a cycle itself. (It's a cycle with trees on it)
 -}
-insertEdgeOrGetCycleComponent :: (Ord v, Ord a) => 
-                        Forrest v a {- ^ forrest to insert into / find the cycle -} 
+insertEdgeOrGetCycleComponent :: (Ord v, Ord a) =>
+                        Forrest v a {- ^ forrest to insert into / find the cycle -}
                      -> a {- ^ name of the edge -}
-                     -> (v,v) {- ^ incidence tuple of the edge; @(x,x)@ represents a loop around the vertex @x@ -} 
+                     -> (v,v) {- ^ incidence tuple of the edge; @(x,x)@ represents a loop around the vertex @x@ -}
                      -> Either (Set a) (Forrest v a)
 insertEdgeOrGetCycleComponent (F !n !c !t) e (u,v) -- e is a non-loop edge
            | u == v =  Left $ S.singleton e -- a loop is a single edge cycle
            | not (udef || vdef) =           -- e is a new single-edge tree component
-                                  let n1 = n + 1 
+                                  let n1 = n + 1
                                       c1 = M.insert u n $ M.insert v n c
                                       t1 = M.insert n (S.singleton e) t
                                    in Right $ F n1 c1 t1
@@ -67,10 +68,10 @@ insertEdgeOrGetCycleComponent (F !n !c !t) e (u,v) -- e is a non-loop edge
                                 Just vid = vc
                                 Just ut = M.lookup uid t
                                 Just vt = M.lookup vid t
-                                prj xid 
+                                prj xid
                                     | xid == vid = uid -- map the component id of v to u
                                     | otherwise = xid
-                                c1 = M.map prj c 
+                                c1 = M.map prj c
                                 uvt = S.insert e $ ut `S.union` vt
                                 t1 = M.insert uid uvt $ M.delete vid t
                              in Right $ F n c1 t1
@@ -85,5 +86,5 @@ insertEdgeOrGetCycleComponent (F !n !c !t) e (u,v) -- e is a non-loop edge
                      in Right $ F n c1 t1
            where uc = M.lookup u c
                  vc = M.lookup v c
-                 udef = uc /= Nothing
-                 vdef = vc /= Nothing
+                 udef = Data.Maybe.isJust uc
+                 vdef = Data.Maybe.isJust vc
